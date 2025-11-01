@@ -1,11 +1,13 @@
-import { Inter, Jost } from 'next/font/google'
+import { Inter, Space_Grotesk } from "next/font/google";
 
-export const geistSans = Inter({
-	subsets: ['latin'],
-	variable: '--font-geist-sans',
-})
+export const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+});
 
-export const geistMono = Jost({
-	subsets: ['latin'],
-	variable: '--font-geist-mono',
-})
+export const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+  weight: ["300", "400", "500", "600", "700"],
+});
