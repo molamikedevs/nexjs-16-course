@@ -1,7 +1,9 @@
-import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import type { Metadata, Viewport } from "next";
 import { inter, spaceGrotesk } from "@/config/font";
 import { siteConfig } from "@/config/site";
+import ThemeProvider from "@/context/theme-provider";
+import Navbar from "@/components/navigation/navbar";
 
 export const metadata: Metadata = {
   title: {
@@ -28,8 +30,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} ${spaceGrotesk.variable} antialiased`}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className} ${spaceGrotesk.variable} antialiased`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <Navbar />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
