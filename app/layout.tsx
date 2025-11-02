@@ -1,9 +1,11 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
+import { SessionProvider } from "next-auth/react";
 import { inter, spaceGrotesk } from "@/config/font";
 import { siteConfig } from "@/config/site";
 import ThemeProvider from "@/context/theme-provider";
-import Navbar from "@/components/navigation/navbar";
+import { Toaster } from "@/components/ui/sonner";
+import { auth } from "@/auth";
 
 export const metadata: Metadata = {
   title: {
@@ -11,6 +13,9 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  icons: {
+    icon: siteConfig.icons.icon,
+  },
 };
 
 export const viewport: Viewport = {
@@ -24,19 +29,22 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function GlobalLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} ${spaceGrotesk.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Navbar />
-          {children}
-        </ThemeProvider>
-      </body>
+      <SessionProvider session={session}>
+        <body className={`${inter.className} ${spaceGrotesk.variable} antialiased`} suppressHydrationWarning>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </body>
+      </SessionProvider>
     </html>
   );
 }
