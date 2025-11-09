@@ -1,4 +1,3 @@
-import { Input } from "../ui/input";
 import LocalSearch from "./local-search";
 
 export default function GlobalSearch() {

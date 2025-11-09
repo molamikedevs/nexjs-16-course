@@ -1,6 +1,6 @@
+import React from "react";
 import Navbar from "@/components/navigation/navbar";
 import Sidebar from "@/components/navigation/left-sidebar";
-import React from "react";
 import RightSidebar from "@/components/navigation/right-sidebar";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
