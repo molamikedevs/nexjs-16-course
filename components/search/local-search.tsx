@@ -32,7 +32,10 @@ const LocalSearch = ({ route, imgSrc, placeholder, otherClasses, iconPosition = 
           value: searchQuery,
         });
 
-        router.push(newUrl, { scroll: false });
+        // Only push if the URL has changed
+        if (newUrl !== window.location.href) {
+          router.push(newUrl, { scroll: false });
+        }
       } else {
         if (pathname === route) {
           const newUrl = removeKeysFromUrlQuery({
@@ -40,7 +43,10 @@ const LocalSearch = ({ route, imgSrc, placeholder, otherClasses, iconPosition = 
             keysToRemove: ["query"],
           });
 
-          router.push(newUrl, { scroll: false });
+          // Only push if the URL has changed
+          if (newUrl !== window.location.href) {
+            router.push(newUrl, { scroll: false });
+          }
         }
       }
     }, 300);

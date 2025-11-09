@@ -35,7 +35,7 @@ export default function HomeFilter() {
       });
       setActiveFilter(filter);
     }
-    router.push(newUrl);
+    router.push(newUrl, { scroll: false });
   };
 
   return (

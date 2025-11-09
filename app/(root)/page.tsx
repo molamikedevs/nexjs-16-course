@@ -1,3 +1,4 @@
+import QuestionCard from "@/components/cards/question-card";
 import HomeFilter from "@/components/filters/home-filter";
 import LocalSearch from "@/components/search/local-search";
 import { Button } from "@/components/ui/button";
@@ -10,28 +11,35 @@ export const metadata = {
 
 const questions = [
   {
-    id: "1",
+    _id: "1",
     title: "How to learn Next.js?",
     description: "A comprehensive guide to learning Next.js.",
     tags: [{ _id: "1", name: "Next.js" }],
-    author: { _id: "1", name: "John Doe" },
+    author: {
+      _id: "1",
+      name: "Juliet Jones",
+      image: "https://t4.ftcdn.net/jpg/11/66/06/77/360_F_1166067709_2SooAuPWXp20XkGev7oOT7nuK1VThCsN.jpg",
+    },
     upVotes: 10,
-    downVotes: 2,
     answers: 5,
     views: 150,
     createdAt: new Date(),
   },
   {
-    id: "2",
+    _id: "2",
     title: "How to learn React?",
     description: "A comprehensive guide to learning React.",
     tags: [{ _id: "1", name: "React" }],
-    author: { _id: "1", name: "Kevin Smith" },
+    author: {
+      _id: "1",
+      name: "Kevin Smith",
+      image:
+        "https://png.pngtree.com/png-clipart/20230927/original/pngtree-man-avatar-image-for-profile-png-image_13001877.png",
+    },
     upVotes: 12,
-    downVotes: 3,
     answers: 7,
     views: 180,
-    createdAt: new Date(),
+    createdAt: new Date("2024-06-20"),
   },
 ];
 
@@ -66,7 +74,7 @@ export default async function Home({ searchParams }: SearchParams) {
           <Link href={ROUTES.ASK_QUESTION}>Ask Question</Link>
         </Button>
       </section>
-      <section className="mt-11">
+      <section className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearch
           route="/"
           imgSrc="/icons/search.svg"
@@ -78,7 +86,7 @@ export default async function Home({ searchParams }: SearchParams) {
       <HomeFilter />
       <div className="mt-10 flex w-full flex-col gap-6">
         {filteredQuestions.map((question) => (
-          <h1 key={question.id}>{question.title}</h1>
+          <QuestionCard key={question._id} question={question} />
         ))}
       </div>
     </>
