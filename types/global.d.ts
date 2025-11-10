@@ -21,6 +21,7 @@ export interface Question {
   tags: Tag[];
   author: Author;
   upVotes: number;
+  downVotes: number;
   answers: number;
   views: number;
   createdAt: Date;
