@@ -1,12 +1,11 @@
-/* A custom error classes to handle HTTP errors in a Next.js application */
 export class RequestError extends Error {
   statusCode: number;
-  error?: Record<string, string[]>;
+  errors?: Record<string, string[]>;
 
-  constructor(message: string, statusCode: number, error?: Record<string, string[]>) {
+  constructor(statusCode: number, message: string, errors?: Record<string, string[]>) {
     super(message);
     this.statusCode = statusCode;
-    this.error = error;
+    this.errors = errors;
     this.name = "RequestError";
   }
 }
@@ -14,41 +13,43 @@ export class RequestError extends Error {
 export class ValidationError extends RequestError {
   constructor(fieldErrors: Record<string, string[]>) {
     const message = ValidationError.formatFieldErrors(fieldErrors);
-    super(message, 422, fieldErrors);
+    super(400, message, fieldErrors);
     this.name = "ValidationError";
-    this.error = fieldErrors;
+    this.errors = fieldErrors;
   }
 
-  // Helper method to format field errors into a readable message
-  static formatFieldErrors(fieldErrors: Record<string, string[]>): string {
-    const formattedMessages = Object.entries(fieldErrors).map(([field, messages]) => {
-      const fileName = field.charAt(0).toUpperCase() + field.slice(1);
+  static formatFieldErrors(errors: Record<string, string[]>): string {
+    const formattedMessages = Object.entries(errors).map(([field, messages]) => {
+      const fieldName = field.charAt(0).toUpperCase() + field.slice(1);
 
       if (messages[0] === "Required") {
-        return `${fileName} is required`;
+        return `${fieldName} is required`;
+      } else {
+        return messages.join(" and ");
       }
     });
-    return formattedMessages.join("; ");
+
+    return formattedMessages.join(", ");
   }
 }
 
 export class NotFoundError extends RequestError {
   constructor(resource: string) {
-    super(`${resource} not found`, 404);
+    super(404, `${resource} not found`);
     this.name = "NotFoundError";
   }
 }
 
 export class ForbiddenError extends RequestError {
   constructor(message: string = "Forbidden") {
-    super(message, 403);
+    super(403, message);
     this.name = "ForbiddenError";
   }
 }
 
 export class UnauthorizedError extends RequestError {
   constructor(message: string = "Unauthorized") {
-    super(message, 401);
+    super(401, message);
     this.name = "UnauthorizedError";
   }
 }

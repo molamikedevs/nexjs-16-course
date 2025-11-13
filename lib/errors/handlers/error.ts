@@ -1,54 +1,51 @@
 import { NextResponse } from "next/server";
-import { RequestError, ValidationError } from "../http-error";
-import { ZodError } from "zod/v3";
-import logger from "../logger";
+import { ZodError } from "zod";
 
+import logger from "../logger";
+import { RequestError, ValidationError } from "../http-error";
 
 export type ResponseType = "api" | "server";
 
 const formatResponse = (
   responseType: ResponseType,
-  statusCode: number,
+  status: number,
   message: string,
-  errors?: Record<string, string[]>
+  errors?: Record<string, string[]> | undefined
 ) => {
   const responseContent = {
     success: false,
     error: {
       message,
-      detail: errors || null,
+      details: errors,
     },
   };
 
-  return responseType === "api"
-    ? NextResponse.json(responseContent, { status: statusCode })
-    : { statusCode, ...responseContent };
+  return responseType === "api" ? NextResponse.json(responseContent, { status }) : { status, ...responseContent };
 };
 
 const handleError = (error: unknown, responseType: ResponseType = "server") => {
   if (error instanceof RequestError) {
-    logger.error(
-      {
-        err: error,
-      },
-      `${responseType.toUpperCase()} Error: ${error.message}`
-    );
-    return formatResponse(responseType, error.statusCode, error.message, error.error);
+    logger.error({ err: error }, `${responseType.toUpperCase()} Error: ${error.message}`);
+
+    return formatResponse(responseType, error.statusCode, error.message, error.errors);
   }
 
   if (error instanceof ZodError) {
-    logger.error({ err: error }, `Validation Error: ${error.message}`);
     const validationError = new ValidationError(error.flatten().fieldErrors as Record<string, string[]>);
-    return formatResponse(responseType, validationError.statusCode, validationError.message, validationError.error);
+
+    logger.error({ err: error }, `Validation Error: ${validationError.message}`);
+
+    return formatResponse(responseType, validationError.statusCode, validationError.message, validationError.errors);
   }
 
   if (error instanceof Error) {
-    logger.error({ err: error.message });
+    logger.error(error.message);
+
     return formatResponse(responseType, 500, error.message);
   }
 
-  logger.error({ err: error }, "Unknown Error");
-  return formatResponse(responseType, 500, "An unknown error occurred");
+  logger.error({ err: error }, "An unexpected error occurred");
+  return formatResponse(responseType, 500, "An unexpected error occurred");
 };
 
 export default handleError;

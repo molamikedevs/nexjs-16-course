@@ -1,9 +1,12 @@
-import mongoose, {Mongoose} from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
+
+import "@/database";
 import logger from "./errors/logger";
 
-const MONGODB_URI = process.env.MONGODB_URI || "";
+const MONGODB_URI = process.env.MONGODB_URI as string;
+
 if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
+  throw new Error("MONGODB_URI is not defined");
 }
 
 interface MongooseCache {
@@ -22,10 +25,9 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-// Function to connect to MongoDB
-async function dbConnect(): Promise<Mongoose> {
+const dbConnect = async (): Promise<Mongoose> => {
   if (cached.conn) {
-    logger.info("Using cached MongoDB connection");
+    logger.info("Using existing mongoose connection");
     return cached.conn;
   }
 
@@ -35,17 +37,18 @@ async function dbConnect(): Promise<Mongoose> {
         dbName: "devflow",
       })
       .then((result) => {
-        logger.info("MongoDB connected");
+        logger.info("Connected to MongoDB");
         return result;
       })
       .catch((error) => {
-        logger.error("MongoDB connection error:", error);
+        logger.error("Error connecting to MongoDB", error);
         throw error;
       });
   }
 
   cached.conn = await cached.promise;
+
   return cached.conn;
-}
+};
 
 export default dbConnect;
