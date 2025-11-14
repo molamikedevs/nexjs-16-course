@@ -1,10 +1,11 @@
-import { User } from "@/database";
-import handleError from "@/lib/errors/handlers/error";
 import { ValidationError } from "@/lib/errors/http-error";
-import dbConnect from "@/lib/mongoose";
 import { UserSchema } from "@/lib/validation";
 import { APIErrorResponse } from "@/types/global";
 import { NextResponse } from "next/server";
+import { User } from "@/database";
+
+import handleError from "@/lib/handlers/error";
+import dbConnect from "@/lib/mongoose";
 
 // GET /api/users - Retrieve a list of users
 export async function GET() {
