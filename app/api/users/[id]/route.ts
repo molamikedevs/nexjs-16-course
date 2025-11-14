@@ -1,6 +1,6 @@
 import { User } from "@/database";
 import handleError from "@/lib/errors/handlers/error";
-import { NotFoundError, ValidationError } from "@/lib/errors/http-error";
+import { NotFoundError } from "@/lib/errors/http-error";
 import dbConnect from "@/lib/mongoose";
 import { UserSchema } from "@/lib/validation";
 import { APIErrorResponse } from "@/types/global";

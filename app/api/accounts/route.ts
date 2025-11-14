@@ -7,12 +7,12 @@ import { User } from "@/database";
 import handleError from "@/lib/errors/handlers/error";
 import dbConnect from "@/lib/mongoose";
 
-// GET /api/users - Retrieve a list of users
+// GET /api/accounts - Retrieve a list of accounts
 export async function GET() {
   try {
     await dbConnect();
 
-    // Fetch all users from the database
+    // Fetch all accounts from the database
     const accounts = await User.find();
 
     return NextResponse.json({ success: true, data: accounts }, { status: 200 });
@@ -21,7 +21,7 @@ export async function GET() {
   }
 }
 
-// POST /api/users - Create a new user
+// POST /api/accounts - Create a new account
 export async function POST(request: Request) {
   try {
     await dbConnect();
