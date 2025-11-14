@@ -33,12 +33,14 @@ export async function POST(request: Request) {
       throw new ValidationError(validatedData.error.flatten().fieldErrors);
     }
 
-    // Check for existing user by email and username
+    // Destructure email and username from validated data
     const { email, username } = validatedData.data;
 
+    // Check for existing user with same email
     const existingUser = await User.findOne({ email });
     if (existingUser) throw new Error("User already exists");
 
+    // Check for existing user with same username
     const existingUsername = await User.findOne({ username });
     if (existingUsername) throw new Error("Username already exists");
 

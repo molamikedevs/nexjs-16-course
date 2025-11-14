@@ -77,7 +77,7 @@ export const UserSchema = z.object({
 export const AccountSchema = z.object({
   userId: z.string(),
   name: z.string().min(1, "Name is required"),
-  image: z.string().url("Invalid image URL").optional(),
+  image: z.url("Invalid image URL").optional(),
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters long." })
