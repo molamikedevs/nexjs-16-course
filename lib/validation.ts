@@ -103,8 +103,8 @@ export const SignInWithOAuthSchema = z.object({
   user: z.object({
     name: z.string().min(1, "Name is required"),
     username: z.string().min(3, "Username must be at least 3 characters"),
-    email: z.string().email("Invalid email address"),
-    image: z.string().url("Invalid image URL").optional(),
+    email: z.email("Invalid email address"),
+    image: z.url("Invalid image URL").optional(),
   }),
 });
 

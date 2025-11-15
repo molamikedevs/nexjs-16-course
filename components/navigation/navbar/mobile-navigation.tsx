@@ -12,7 +12,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import NavLinks from "./nav-links";
-import ROUTES from "@/constants/route";
+import { siteConfig } from "@/config/site";
 
 const MobileNavigation = async () => {
   const session = await auth();
@@ -21,26 +21,12 @@ const MobileNavigation = async () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Image
-          src="/icons/hamburger.svg"
-          width={36}
-          height={36}
-          alt="Menu"
-          className="invert-colors sm:hidden"
-        />
+        <Image src="/icons/hamburger.svg" width={36} height={36} alt="Menu" className="invert-colors sm:hidden" />
       </SheetTrigger>
-      <SheetContent
-        side="left"
-        className="background-light900_dark200 border-none"
-      >
+      <SheetContent side="left" className="background-light900_dark200 border-none">
         <SheetTitle className="hidden">Navigation</SheetTitle>
         <Link href="/" className="flex items-center gap-1">
-          <Image
-            src="/images/site-logo.svg"
-            width={23}
-            height={23}
-            alt="Logo"
-          />
+          <Image src="/images/site-logo.svg" width={23} height={23} alt="Logo" />
 
           <p className="h2-bold font-space-grotesk text-dark-100 dark:text-light-900">
             Dev<span className="text-primary-500">Flow</span>
@@ -64,10 +50,7 @@ const MobileNavigation = async () => {
                     await signOut();
                   }}
                 >
-                  <Button
-                    type="submit"
-                    className="base-medium w-fit bg-transparent px-4 py-3"
-                  >
+                  <Button type="submit" className="base-medium w-fit bg-transparent px-4 py-3">
                     <LogOut className="size-5 text-black dark:text-white" />
                     <span className="text-dark300_light900">Logout</span>
                   </Button>
@@ -76,7 +59,7 @@ const MobileNavigation = async () => {
             ) : (
               <>
                 <SheetClose asChild>
-                  <Link href={ROUTES.SIGN_IN}>
+                  <Link href={siteConfig.ROUTES.SIGN_IN}>
                     <Button className="small-medium btn-secondary min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none">
                       <span className="primary-text-gradient">Log In</span>
                     </Button>
@@ -84,7 +67,7 @@ const MobileNavigation = async () => {
                 </SheetClose>
 
                 <SheetClose asChild>
-                  <Link href={ROUTES.SIGN_UP}>
+                  <Link href={siteConfig.ROUTES.SIGN_UP}>
                     <Button className="small-medium light-border-2 btn-tertiary text-dark400_light900 min-h-[41px] w-full rounded-lg border px-4 py-3 shadow-none">
                       <span>Sign Up</span>
                     </Button>

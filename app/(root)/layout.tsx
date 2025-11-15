@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "@/components/navigation/navbar";
-import Sidebar from "@/components/navigation/left-sidebar";
 import RightSidebar from "@/components/navigation/right-sidebar";
+import LeftSidebar from "@/components/navigation/left-sidebar";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,7 +9,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <Navbar />
 
       <div className="flex">
-        <Sidebar />
+        <LeftSidebar />
 
         <section className="min-h-screen flex-1 px-6 pt-36 pb-6 sm:px-14 md:pb-14">
           <div className="mx-auto w-full max-w-5xl">{children}</div>

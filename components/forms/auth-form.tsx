@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import ROUTES from "@/constants/route";
 import AuthSwitch from "../auth-switch";
+import { siteConfig } from "@/config/site";
 
 interface AuthFormProps<T extends FieldValues> {
   schema: ZodType<T> | any;
@@ -37,7 +37,7 @@ const AuthForm = <T extends FieldValues>({ schema, defaultValues, formType, onSu
         description: `Welcome back, ${data["username"] || data["name"]}!`,
       });
 
-      router.push(ROUTES.HOME);
+      router.push(siteConfig.ROUTES.HOME);
     } else {
       toast("Submission failed. Please try again.", {
         description: result?.error || "An unexpected error occurred.",

@@ -1,7 +1,8 @@
-import ROUTES from "@/constants/route";
+import Link from "next/link";
+
 import { getTimeStamp } from "@/lib/utils";
 import { Question, Tag } from "@/types/global";
-import Link from "next/link";
+import { siteConfig } from "@/config/site";
 import TagCard from "./tag-card";
 import Metric from "../metric";
 
@@ -19,7 +20,7 @@ export default function QuestionCard({ question }: Props) {
           <span className="subtle-regular text-dark400_light700 line-clamp-1 flex sm:hidden">
             {getTimeStamp(createdAt)}
           </span>
-          <Link href={ROUTES.QUESTION(_id)}>
+          <Link href={siteConfig.ROUTES.QUESTION(_id)}>
             <h2 className="sm:h3-semibold base-semibold text-dark200_light900 line-clamp-1 flex-1">{title}</h2>
           </Link>
         </div>
@@ -39,7 +40,7 @@ export default function QuestionCard({ question }: Props) {
           alt={author.name}
           title={`• asked ${getTimeStamp(createdAt)}`}
           value={author.name}
-          href={ROUTES.PROFILE(_id)}
+          href={siteConfig.ROUTES.PROFILE(_id)}
           textStyles="body-medium text-dark400_light700"
           isAuthor
         />
@@ -47,30 +48,29 @@ export default function QuestionCard({ question }: Props) {
         {/* Metrics - Other */}
         <div className="flex items-center gap-3 max-sm:flex-wrap max-sm:justify-start">
           <Metric
-            imgUrl='/icons/like.svg'
-            alt='like'
+            imgUrl="/icons/like.svg"
+            alt="like"
             title="Votes"
             value={upVotes}
             textStyles="small-medium text-dark400_light800"
           />
           <Metric
-            imgUrl='/icons/message.svg'
-            alt='Answers'
+            imgUrl="/icons/message.svg"
+            alt="Answers"
             title="Answers"
             value={answers}
             textStyles="small-medium text-dark400_light800"
           />
 
           <Metric
-            imgUrl='/icons/eye.svg'
-            alt='Views'
+            imgUrl="/icons/eye.svg"
+            alt="Views"
             title="Views"
             value={views}
             textStyles="small-medium text-dark400_light800"
           />
         </div>
-
       </div>
-     </div>
+    </div>
   );
 }

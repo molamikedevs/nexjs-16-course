@@ -2,7 +2,7 @@ import QuestionCard from "@/components/cards/question-card";
 import HomeFilter from "@/components/filters/home-filter";
 import LocalSearch from "@/components/search/local-search";
 import { Button } from "@/components/ui/button";
-import ROUTES from "@/constants/route";
+import { siteConfig } from "@/config/site";
 import { api } from "@/lib/api";
 import handleError from "@/lib/handlers/error";
 import Link from "next/link";
@@ -86,7 +86,7 @@ export default async function Home({ searchParams }: SearchParams) {
       <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="h1-bold text-dark100_light900">All Questions</h1>
         <Button className="primary-gradient text-light-900! min-h-[46px] px-4 py-3">
-          <Link href={ROUTES.ASK_QUESTION}>Ask Question</Link>
+          <Link href={siteConfig.ROUTES.ASK_QUESTION}>Ask Question</Link>
         </Button>
       </section>
       <section className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">

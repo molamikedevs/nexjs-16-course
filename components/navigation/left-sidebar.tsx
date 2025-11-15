@@ -1,12 +1,11 @@
-import { LogOut } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
+import { LogOut } from "lucide-react";
 import { auth, signOut } from "@/auth";
-
+import { siteConfig } from "@/config/site";
 import { Button } from "../ui/button";
-import ROUTES from "@/constants/route";
+
 import NavLinks from "./navbar/nav-links";
 
 const LeftSidebar = async () => {
@@ -39,7 +38,7 @@ const LeftSidebar = async () => {
               className="small-medium btn-secondary mt-4 min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none"
               asChild
             >
-              <Link href={ROUTES.SIGN_IN}>
+              <Link href={siteConfig.ROUTES.SIGN_IN}>
                 <Image
                   src="/icons/account.svg"
                   alt="Account"
@@ -55,7 +54,7 @@ const LeftSidebar = async () => {
               className="small-medium light-border-2 btn-tertiary text-dark400_light900 min-h-[41px] w-full rounded-lg border px-4 py-3 shadow-none"
               asChild
             >
-              <Link href={ROUTES.SIGN_UP}>
+              <Link href={siteConfig.ROUTES.SIGN_UP}>
                 <Image
                   src="/icons/sign-up.svg"
                   alt="Account"

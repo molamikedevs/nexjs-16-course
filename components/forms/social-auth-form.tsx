@@ -4,8 +4,7 @@ import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import ROUTES from "@/constants/route";
-
+import { siteConfig } from "@/config/site";
 
 const SocialAuthForm = () => {
   const buttonClass =
@@ -13,12 +12,12 @@ const SocialAuthForm = () => {
 
   const handleSignIn = async (provider: "github" | "google") => {
     try {
-      await signIn(provider, { callbackUrl: ROUTES.HOME });
+      await signIn(provider, { callbackUrl: siteConfig.ROUTES.HOME });
     } catch (error) {
       console.log(error);
-      toast('There was an error signing in. Please try again.', {
-        description: 'If the problem persists, contact support.',
-        className: 'toast-error',
+      toast("There was an error signing in. Please try again.", {
+        description: "If the problem persists, contact support.",
+        className: "toast-error",
       });
     }
   };
@@ -37,13 +36,7 @@ const SocialAuthForm = () => {
       </Button>
 
       <Button className={buttonClass} onClick={() => handleSignIn("google")}>
-        <Image
-          src="/icons/google.svg"
-          alt="Google Logo"
-          width={20}
-          height={20}
-          className="mr-2.5 object-contain"
-        />
+        <Image src="/icons/google.svg" alt="Google Logo" width={20} height={20} className="mr-2.5 object-contain" />
         <span>Log in with Google</span>
       </Button>
     </div>
