@@ -47,13 +47,13 @@ const questions = [
   },
 ];
 
-const test = async () => {
-  try {
-    return await api.users.getAll();
-  } catch (error) {
-    return handleError(error);
-  }
-};
+// const test = async () => {
+//   try {
+//     return await api.users.getAll();
+//   } catch (error) {
+//     return handleError(error);
+//   }
+// };
 
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
@@ -62,8 +62,8 @@ interface SearchParams {
 export default async function Home({ searchParams }: SearchParams) {
   const { query = "", filter = "" } = await searchParams;
 
-  const users = await test();
-  console.log("Users:", users);
+  // const users = await test();
+  // console.log("Users:", users);
 
   const filteredQuestions = questions.filter((question) => {
     const matchesQuery = question.title.toLowerCase().includes(query.toLowerCase());

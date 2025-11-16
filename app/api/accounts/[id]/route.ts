@@ -1,18 +1,18 @@
 import { NotFoundError, ValidationError } from "@/lib/errors/http-error";
 import { AccountSchema } from "@/lib/validation";
 import { APIErrorResponse } from "@/types/global";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { Account } from "@/database";
-
 
 import dbConnect from "@/lib/mongoose";
 import handleError from "@/lib/handlers/error";
 
 // GET /api/accounts/:id - Retrieve a user by ID
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   // Extract user ID from params
   const { id } = await params;
   if (!id) throw new NotFoundError("Account");
+  console.log("Fetching account with ID:", id);
 
   try {
     await dbConnect();
@@ -31,7 +31,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 }
 
 // DELETE /api/accounts/:id - Delete a user by ID
-export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   // Extract user ID from params and validate
   const { id } = await params;
   if (!id) throw new NotFoundError("Account");
@@ -50,7 +50,7 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
 }
 
 // PUT /api/accounts/:id - Update a user by ID
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   // Extract user ID from params and validate
   const { id } = await params;
   if (!id) throw new NotFoundError("Account");

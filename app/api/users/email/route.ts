@@ -1,12 +1,12 @@
 import { NotFoundError, ValidationError } from "@/lib/errors/http-error";
 import { UserSchema } from "@/lib/validation";
 import { APIErrorResponse } from "@/types/global";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { User } from "@/database";
 import handleError from "@/lib/handlers/error";
 import dbConnect from "@/lib/mongoose";
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   // Extract email from request body
   const { email } = await request.json();
 

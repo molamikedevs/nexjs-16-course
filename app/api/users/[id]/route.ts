@@ -1,14 +1,14 @@
 import { NotFoundError } from "@/lib/errors/http-error";
 import { UserSchema } from "@/lib/validation";
 import { APIErrorResponse } from "@/types/global";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { User } from "@/database";
 
 import handleError from "@/lib/handlers/error";
 import dbConnect from "@/lib/mongoose";
 
 // GET /api/users/:id - Retrieve a user by ID
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   // Extract user ID from params
   const { id } = await params;
   if (!id) throw new NotFoundError("User");
@@ -30,7 +30,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 }
 
 // DELETE /api/users/:id - Delete a user by ID
-export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   // Extract user ID from params and validate
   const { id } = await params;
   if (!id) throw new NotFoundError("User");
@@ -49,7 +49,7 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
 }
 
 // PUT /api/users/:id - Update a user by ID
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   // Extract user ID from params and validate
   const { id } = await params;
   if (!id) throw new NotFoundError("User");

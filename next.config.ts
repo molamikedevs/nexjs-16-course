@@ -6,9 +6,21 @@ const nextConfig: NextConfig = {
   experimental: {
     turbopackFileSystemCacheForDev: true,
   },
-
   images: {
-    domains: ["t4.ftcdn.net", "png.pngtree.com", "yourdomain.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "png.pngtree.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "t4.ftcdn.net",
+        port: "",
+        pathname: "/**",
+      },
+    ],
   },
 };
 
