@@ -1,6 +1,7 @@
 "use client";
 
 import AuthForm from "@/components/forms/auth-form";
+import { signInWithCredentials } from "@/lib/actions/auth.action";
 import { SignInSchema } from "@/lib/validation";
 
 export default function SignInPage() {
@@ -9,12 +10,7 @@ export default function SignInPage() {
       formType="SIGN_IN"
       schema={SignInSchema}
       defaultValues={{ email: "", password: "" }}
-      onSubmit={(values) =>
-        Promise.resolve({
-          success: true,
-          data: values,
-        })
-      }
+      onSubmit={signInWithCredentials}
     />
   );
 }

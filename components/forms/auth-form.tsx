@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { siteConfig } from "@/config/site";
 import { ActionResponse } from "@/types/global";
-import AuthSwitch from "../auth-switch";
+import AuthSwitch from "../common/auth-switch";
 
 // 1. Define the props for the AuthForm component
 interface AuthFormProps<T extends FieldValues> {

@@ -3,8 +3,11 @@ import Link from "next/link";
 import ThemeSwitch from "../../theme/theme-switch";
 import MobileNavigation from "./mobile-navigation";
 import GlobalSearch from "@/components/search/global-search";
+import { auth } from "@/auth";
+import UserAvatar from "@/components/common/user-avatar";
 
-export default function Navbar() {
+export default async function Navbar() {
+  const session = await auth();
   return (
     <nav className="flex-between background-light900_dark200 shadow-light-300 fixed z-50 w-full gap-5 p-6 sm:px-12 dark:shadow-none">
       <Link href="/" className="flex items-center gap-1">
@@ -18,6 +21,10 @@ export default function Navbar() {
       <div className="flex-between gap-5">
         {/* theme switcher */}
         <ThemeSwitch />
+
+        {session?.user?.id && (
+          <UserAvatar id={session?.user?.id} name={session?.user?.name!} imageUrl={session?.user?.image!} />
+        )}
         {/* mobile navigation */}
         <MobileNavigation />
       </div>

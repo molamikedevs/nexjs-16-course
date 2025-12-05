@@ -1,4 +1,4 @@
-import { MoonIcon, SunIcon, ServerIcon } from "@/components/icons";
+import { MoonIcon, SunIcon, ServerIcon } from "@/components/common/icons";
 
 export const themes = [
   { value: "light", label: "Light", icon: SunIcon },

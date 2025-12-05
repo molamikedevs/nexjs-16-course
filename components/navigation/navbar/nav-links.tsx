@@ -27,16 +27,7 @@ const NavLinks = ({
 
          let route = item.route;
         if (route === "/profile") {
-          if (userId) {
-            // Extract the ID from email or use a proper user ID
-            // If you have a proper user ID from session, use that instead of email
-            const userSlug = userId.includes('@') 
-              ? userId.split('@')[0] // Use username part of email as fallback
-              : userId;
-            route = `${item.route}/${userSlug}`;
-          } else {
-            return null;
-          }
+          if (userId) item.route = `${item.route}/${userId}`;
         }
 
         const LinkComponent = (
