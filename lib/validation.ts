@@ -29,10 +29,7 @@ export const SignUpSchema = z.object({
       message: "Name can only contain letters and spaces.",
     }),
 
-  email: z
-    .string()
-    .min(1, { message: "Email is required." })
-    .email({ message: "Please provide a valid email address." }),
+  email: z.email({ message: "Please provide a valid email address." }).min(1, { message: "Email is required." }),
 
   password: z
     .string()

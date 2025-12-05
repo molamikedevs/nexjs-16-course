@@ -1,4 +1,4 @@
-import { model, models, Schema, Types } from "mongoose";
+import { model, models, Schema, Types, Document, Model } from "mongoose";
 
 export interface IQuestion {
   title: string;
@@ -11,13 +11,14 @@ export interface IQuestion {
   views: number;
 }
 
+export interface IQuestionDoc extends IQuestion, Document {}
+
 const QuestionSchema = new Schema(
   {
-    _id: Types.ObjectId,
     title: { type: String, required: true },
     description: { type: String, required: true },
-    author: { type: Types.ObjectId, ref: "User", required: true },
-    tags: [{ type: Types.ObjectId, ref: "Tag" }],
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],
     upVotes: { type: Number, default: 0 },
     downVotes: { type: Number, default: 0 },
     answers: { type: Number, default: 0 },
@@ -27,6 +28,6 @@ const QuestionSchema = new Schema(
 );
 
 // Check if the model already exists to avoid recompilation issues
-const Question = models?.Question || model<IQuestion>("Question", QuestionSchema);
+const Question = (models?.Question as Model<IQuestionDoc>) || model<IQuestionDoc>("Question", QuestionSchema);
 
 export default Question;

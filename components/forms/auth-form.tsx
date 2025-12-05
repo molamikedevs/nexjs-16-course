@@ -1,50 +1,49 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DefaultValues, FieldValues, Path, Resolver, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z, ZodType } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import AuthSwitch from "../auth-switch";
 import { siteConfig } from "@/config/site";
+import { ActionResponse } from "@/types/global";
+import AuthSwitch from "../auth-switch";
 
+// 1. Define the props for the AuthForm component
 interface AuthFormProps<T extends FieldValues> {
   schema: ZodType<T> | any;
   defaultValues: T;
-  onSubmit: (data: T) => Promise<{ success: boolean; error?: string }>;
+  onSubmit: (data: T) => Promise<ActionResponse>;
   formType: "SIGN_IN" | "SIGN_UP";
 }
 
+// 2. Create the AuthForm component
 const AuthForm = <T extends FieldValues>({ schema, defaultValues, formType, onSubmit }: AuthFormProps<T>) => {
   const router = useRouter();
 
-  // Initialize the form with react-hook-form and zod resolver
+  // 3. Initialize the form using react-hook-form and zodResolver
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema) as Resolver<T>,
     defaultValues: defaultValues as DefaultValues<T>,
   });
 
+  // 4. Define the submit handler
   const handleSubmit: SubmitHandler<T> = async (data) => {
-    const result = (await onSubmit(data)) as { success: boolean; error?: string };
+    const result = (await onSubmit(data)) as ActionResponse;
 
     if (result?.success) {
-      toast("Successfully submitted the form!", {
-        description: `Welcome back, ${data["username"] || data["name"]}!`,
-      });
-
+      toast(`Successfully ${formType === "SIGN_IN" ? "Signed in successfully" : "Signed up successfully"}!`);
       router.push(siteConfig.ROUTES.HOME);
     } else {
-      toast("Submission failed. Please try again.", {
-        description: result?.error || "An unexpected error occurred.",
-      });
+      toast(`Error: ${result?.error || "Something went wrong. Please try again."}`);
     }
   };
 
+  // 5. Determine the auth state for button text
   const authState = formType === "SIGN_IN" ? "Sign In" : "Sign Up";
 
   return (

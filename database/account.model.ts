@@ -1,4 +1,4 @@
-import { model, models, Schema, Types } from "mongoose";
+import { model, models, Schema, Types, Document } from "mongoose";
 
 export interface IAccount {
   userId: Types.ObjectId;
@@ -10,8 +10,7 @@ export interface IAccount {
 }
 
 export interface IAccountDoc extends IAccount, Document {}
-
-const AccountSchema = new Schema(
+const AccountSchema = new Schema<IAccount>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     name: { type: String, required: true },
@@ -23,7 +22,6 @@ const AccountSchema = new Schema(
   { timestamps: true }
 );
 
-// Check if the model already exists to avoid recompilation issues
 const Account = models?.Account || model<IAccount>("Account", AccountSchema);
 
 export default Account;
