@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
 import z from "zod";
 import dynamic from "next/dynamic";
-import { useRef } from "react";
+import { useRef, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { MDXEditorMethods } from "@mdxeditor/editor";
@@ -11,12 +11,19 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import TagCard from "../cards/tag-card";
+import { createQuestion } from "@/lib/actions/question.action";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { siteConfig } from "@/config/site";
+import { Spinner } from "../ui/spinner";
 
 const Editor = dynamic(() => import("@/components/editor"), {
   ssr: false,
 });
 
 export default function QuestionForm() {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const editorRef = useRef<MDXEditorMethods>(null);
   const form = useForm({
     resolver: zodResolver(AskQuestionSchema),
@@ -65,7 +72,19 @@ export default function QuestionForm() {
   };
 
   const handleCreateQuestion = async (data: z.infer<typeof AskQuestionSchema>) => {
-    console.log(data);
+    startTransition(async () => {
+      const result = await createQuestion(data);
+      if (result.success) {
+        toast("Question created successfully!", {
+          description: "Your question has been posted.",
+        });
+        if (result.data) router.push(siteConfig.ROUTES.QUESTION(result.data._id));
+      } else {
+        toast("Failed to create question.", {
+          description: result.error?.message || "Please try again later.",
+        });
+      }
+    });
   };
 
   return (
@@ -156,8 +175,15 @@ export default function QuestionForm() {
         />
         {/** Submit Button */}
         <div className="mt-16 flex justify-end">
-          <Button type="submit" className="primary-gradient rounded-2 text-light-900! w-full">
-            Post Your Question
+          <Button type="submit" disabled={isPending} className="primary-gradient rounded-2 text-light-900! w-full">
+            {isPending ? (
+              <>
+                <Spinner className="mr-2 h-4 w-4" />
+                <span>Submitting...</span>
+              </>
+            ) : (
+              <>Ask A Question</>
+            )}
           </Button>
         </div>
       </form>

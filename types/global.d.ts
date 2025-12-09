@@ -13,7 +13,7 @@ interface Author {
   image: string;
 }
 
-export interface Question {
+export interface QuestionParams {
   _id: string;
   title: string;
   description: string;
@@ -48,3 +48,8 @@ type APIErrorResponse = NextResponse<ErrorResponse>;
 
 // Generic API response type
 type APIResponse<T = null> = NextResponse<SuccessResponse<T> | ErrorResponse>;
+
+export interface RouteParams {
+  params: Promise<Record<string, string>>;
+  searchParams: Promise<Record<string, string>>;
+}
