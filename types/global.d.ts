@@ -13,17 +13,17 @@ interface Author {
   image: string;
 }
 
-export interface QuestionParams {
+interface QuestionParams {
   _id: string;
   title: string;
-  description: string;
+  content: string;
   tags: Tag[];
   author: Author;
+  createdAt: Date;
   upVotes: number;
   downVotes: number;
   answers: number;
   views: number;
-  createdAt: Date;
 }
 
 // Standardized response type for API actions

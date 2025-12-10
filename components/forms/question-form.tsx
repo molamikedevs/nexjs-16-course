@@ -11,31 +11,36 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import TagCard from "../cards/tag-card";
-import { createQuestion } from "@/lib/actions/question.action";
+import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { Spinner } from "../ui/spinner";
+import { QuestionParams } from "@/types/global";
 
 const Editor = dynamic(() => import("@/components/editor"), {
   ssr: false,
 });
 
-export default function QuestionForm() {
+interface params {
+  question?: QuestionParams;
+  isEdit?: boolean;
+}
+
+export default function QuestionForm({ question, isEdit = false }: params) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const editorRef = useRef<MDXEditorMethods>(null);
   const form = useForm({
     resolver: zodResolver(AskQuestionSchema),
     defaultValues: {
-      title: "",
-      content: "",
-      tags: [],
+      title: question?.title || "",
+      content: question?.content || "",
+      tags: question?.tags.map((tag) => tag.name) || [],
     },
   });
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, field: { value: string[] }) => {
-    console.log(field, e);
     if (e.key === "Enter") {
       e.preventDefault();
       const tagInput = e.currentTarget.value.trim();
@@ -73,12 +78,29 @@ export default function QuestionForm() {
 
   const handleCreateQuestion = async (data: z.infer<typeof AskQuestionSchema>) => {
     startTransition(async () => {
+      // Edit existing question
+      if (isEdit && question) {
+        const result = await editQuestion({ questionId: question?._id, ...data });
+        if (result.success) {
+          toast("Question updated successfully!", {
+            description: "Your question has been posted.",
+          });
+          if (result.data) router.push(siteConfig.ROUTES.QUESTION(result.data._id.toString()));
+        } else {
+          toast("Failed to update question.", {
+            description: result.error?.message || "Please try again later.",
+          });
+        }
+        return;
+      }
+
+      // Create new question
       const result = await createQuestion(data);
       if (result.success) {
         toast("Question created successfully!", {
           description: "Your question has been posted.",
         });
-        if (result.data) router.push(siteConfig.ROUTES.QUESTION(result.data._id));
+        if (result.data) router.push(siteConfig.ROUTES.QUESTION(result.data._id.toString()));
       } else {
         toast("Failed to create question.", {
           description: result.error?.message || "Please try again later.",
@@ -182,7 +204,7 @@ export default function QuestionForm() {
                 <span>Submitting...</span>
               </>
             ) : (
-              <>Ask A Question</>
+              <>{isEdit ? "Edit Question" : "Ask A Question"}</>
             )}
           </Button>
         </div>
