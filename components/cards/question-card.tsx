@@ -1,13 +1,13 @@
 import Link from "next/link";
 
 import { getTimeStamp } from "@/lib/utils";
-import { Question, Tag } from "@/types/global";
 import { siteConfig } from "@/config/site";
 import TagCard from "./tag-card";
 import Metric from "../common/metric";
+import { QuestionParams, Tag } from "@/types/global";
 
 interface Props {
-  question: Question;
+  question: QuestionParams;
 }
 
 export default function QuestionCard({ question }: Props) {

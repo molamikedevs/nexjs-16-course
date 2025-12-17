@@ -76,42 +76,36 @@ export default function QuestionForm({ question, isEdit = false }: params) {
     }
   };
 
-  const handleCreateQuestion = async (data: z.infer<typeof AskQuestionSchema>) => {
+  const handleSaveQuestion = async (data: z.infer<typeof AskQuestionSchema>) => {
     startTransition(async () => {
-      // Edit existing question
-      if (isEdit && question) {
-        const result = await editQuestion({ questionId: question?._id, ...data });
-        if (result.success) {
-          toast("Question updated successfully!", {
-            description: "Your question has been posted.",
-          });
-          if (result.data) router.push(siteConfig.ROUTES.QUESTION(result.data._id.toString()));
-        } else {
-          toast("Failed to update question.", {
-            description: result.error?.message || "Please try again later.",
-          });
-        }
+      // 1. Determine which server action to call
+      const action = isEdit && question ? editQuestion({ questionId: question._id, ...data }) : createQuestion(data);
+
+      // 2. Execute the action
+      const result = await action;
+
+      // 3. Handle Error
+      if (!result.success) {
+        toast.error(`Error ${isEdit ? "updating" : "creating"} question`, {
+          description: result.error?.message || "Something went wrong. Please try again.",
+        });
         return;
       }
 
-      // Create new question
-      const result = await createQuestion(data);
-      if (result.success) {
-        toast("Question created successfully!", {
-          description: "Your question has been posted.",
-        });
-        if (result.data) router.push(siteConfig.ROUTES.QUESTION(result.data._id.toString()));
-      } else {
-        toast("Failed to create question.", {
-          description: result.error?.message || "Please try again later.",
-        });
+      // 4. Handle Success
+      toast.success("Success!", {
+        description: `Your question has been ${isEdit ? "updated" : "posted"} successfully.`,
+      });
+
+      if (result.data) {
+        router.push(siteConfig.ROUTES.QUESTION(result.data._id.toString()));
       }
     });
   };
 
   return (
     <Form {...form}>
-      <form className="flex w-full flex-col gap-10" onSubmit={form.handleSubmit(handleCreateQuestion)}>
+      <form className="flex w-full flex-col gap-10" onSubmit={form.handleSubmit(handleSaveQuestion)}>
         {/** Title Field */}
         <FormField
           control={form.control}

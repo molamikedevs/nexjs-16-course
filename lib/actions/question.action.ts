@@ -1,9 +1,8 @@
 "use server";
 
-import mongoose from "mongoose";
-import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema } from "../validation";
-import { ActionResponse, ErrorResponse, QuestionParams } from "@/types/global";
-import { CreateQuestionParams, EditQuestionParams, GetQuestionsParams } from "@/types/action";
+import mongoose, { FilterQuery } from "mongoose";
+import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema, PaginatedSearchParamsSchema } from "../validation";
+import { ActionResponse, ErrorResponse, PaginationSearchParams, QuestionParams } from "@/types/global";
 import action from "../handlers/actions";
 import handleError from "../handlers/error";
 import Tag, { ITagDoc } from "@/database/tag.model";
@@ -176,6 +175,75 @@ export async function getQuestion(params: GetQuestionsParams): Promise<ActionRes
       throw new Error("Question not found");
     }
     return { success: true, data: JSON.parse(JSON.stringify(question)) };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getQuestions(
+  params: PaginationSearchParams
+): Promise<ActionResponse<{ questions: QuestionParams[]; isNext: boolean }>> {
+  // 1. Validate and authorize the request
+  const validationResult = await action({
+    params,
+    schema: PaginatedSearchParamsSchema,
+    authorize: false,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  // 2. Extract validated params and set limit and skip for pagination
+  const { page = 1, pageSize = 10, query, filter } = params!;
+  const skip = (Number(page) - 1) * Number(pageSize);
+  const limit = Number(pageSize);
+
+  // 3. Build filter query based on search and filter parameters
+  const filterQuery: FilterQuery<typeof Question> = {};
+  if (filter === "recommended") {
+    return { success: true, data: { questions: [], isNext: false } };
+  }
+
+  // 4. Search query using regex for getting matching questions no matter the case(i.e: CAPS or SMALL)
+  if (query) {
+    filterQuery.$or = [{ title: { $regex: new RegExp(query, "i") } }, { content: { $regex: new RegExp(query, "i") } }];
+  }
+
+  // 5. Determine sort option based on filter parameter
+  let sortOption = {};
+  switch (filter) {
+    case "newest":
+      sortOption = { createdAt: -1 };
+      break;
+    case "unanswered":
+      filterQuery.answers = 0;
+      sortOption = { createdAt: -1 };
+      break;
+    case "popular":
+      sortOption = { upVotes: -1 };
+      break;
+    default:
+      sortOption = { createdAt: -1 };
+      break;
+  }
+
+  try {
+    // 6. Fetch questions from the database with applied filters, sorting, and pagination
+    const questions = await Question.find(filterQuery)
+      .populate("tags", "name")
+      .populate("author", "name image")
+      .lean() // Return plain JavaScript objects
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit);
+
+    // 7. Determine if there is a next page
+    const totalQuestions = await Question.countDocuments(filterQuery);
+    const isNext = totalQuestions > skip + questions.length;
+
+    // 8. Return success response with questions and isNext flag
+    return { success: true, data: { questions: JSON.parse(JSON.stringify(questions)), isNext } };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

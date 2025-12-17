@@ -5,7 +5,6 @@ import mongoose from "mongoose";
 
 import { signIn } from "@/auth";
 import { ActionResponse, ErrorResponse } from "@/types/global";
-import { AuthCredentials } from "@/types/action";
 import { SignInSchema, SignUpSchema } from "../validation";
 
 import Account from "@/database/account.model";

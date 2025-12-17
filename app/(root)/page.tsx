@@ -3,83 +3,28 @@ import HomeFilter from "@/components/filters/home-filter";
 import LocalSearch from "@/components/search/local-search";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
-import { api } from "@/lib/api";
-import handleError from "@/lib/handlers/error";
+import { getQuestions } from "@/lib/actions/question.action";
 import Link from "next/link";
 
 export const metadata = {
   title: "Home",
 };
 
-const questions = [
-  {
-    _id: "1",
-    title: "How to learn Next.js?",
-    description: "A comprehensive guide to learning Next.js.",
-    tags: [{ _id: "1", name: "Next.js" }],
-    author: {
-      _id: "1",
-      name: "Juliet Jones",
-      image: "https://t4.ftcdn.net/jpg/11/66/06/77/360_F_1166067709_2SooAuPWXp20XkGev7oOT7nuK1VThCsN.jpg",
-    },
-    upVotes: 10,
-    downVotes: 2,
-    answers: 5,
-    views: 150,
-    createdAt: new Date(),
-  },
-  {
-    _id: "2",
-    title: "How to learn React?",
-    description: "A comprehensive guide to learning React.",
-    tags: [{ _id: "1", name: "React" }],
-    author: {
-      _id: "1",
-      name: "Kevin Smith",
-      image:
-        "https://png.pngtree.com/png-clipart/20230927/original/pngtree-man-avatar-image-for-profile-png-image_13001877.png",
-    },
-    upVotes: 12,
-    downVotes: 3,
-    answers: 7,
-    views: 180,
-    createdAt: new Date("2024-06-20"),
-  },
-];
-
-// const test = async () => {
-//   try {
-//     return await api.users.getAll();
-//   } catch (error) {
-//     return handleError(error);
-//   }
-// };
-
 interface SearchParams {
   searchParams: Promise<{ [key: string]: string }>;
 }
 
-export default async function Home({ searchParams }: SearchParams) {
-  const { query = "", filter = "" } = await searchParams;
+const Home = async ({ searchParams }: SearchParams) => {
+  const { page, pageSize, query, filter } = await searchParams;
 
-  // const users = await test();
-  // console.log("Users:", users);
-
-  const filteredQuestions = questions.filter((question) => {
-    const matchesQuery = question.title.toLowerCase().includes(query.toLowerCase());
-
-    let matchesFilter = true;
-
-    if (filter === "react") {
-      matchesFilter = question.tags.some((tag) => tag.name === "React");
-    } else if (filter === "nextjs") {
-      matchesFilter = question.tags.some((tag) => tag.name === "Next.js");
-    } else {
-      matchesFilter = question.views >= 100;
-    }
-
-    return matchesQuery && matchesFilter;
+  const { success, data, error } = await getQuestions({
+    page: page ? Number(page) : 1,
+    pageSize: pageSize ? Number(pageSize) : 10,
+    query: query || "",
+    filter: filter || "all",
   });
+
+  const { questions } = data || {};
 
   return (
     <>
@@ -99,11 +44,23 @@ export default async function Home({ searchParams }: SearchParams) {
         />
       </section>
       <HomeFilter />
-      <div className="mt-10 flex w-full flex-col gap-6">
-        {filteredQuestions.map((question) => (
-          <QuestionCard key={question._id} question={question} />
-        ))}
-      </div>
+      {success ? (
+        <div className="mt-10 flex w-full flex-col gap-6">
+          {questions && questions.length > 0 ? (
+            questions.map((question) => <QuestionCard key={question._id} question={question} />)
+          ) : (
+            <div className="mt-10 flex w-full items-center justify-center">
+              <p className="text-dark400_light700">No questions found.</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="mt-10 flex w-full items-center justify-center">
+          <p className="text-dark400_light700">{error?.message || "Failed to load questions."}</p>
+        </div>
+      )}
     </>
   );
-}
+};
+
+export default Home;

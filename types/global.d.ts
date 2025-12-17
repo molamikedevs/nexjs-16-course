@@ -49,7 +49,15 @@ type APIErrorResponse = NextResponse<ErrorResponse>;
 // Generic API response type
 type APIResponse<T = null> = NextResponse<SuccessResponse<T> | ErrorResponse>;
 
-export interface RouteParams {
+interface RouteParams {
   params: Promise<Record<string, string>>;
   searchParams: Promise<Record<string, string>>;
+}
+
+interface PaginationSearchParams {
+  page?: number;
+  pageSize?: number;
+  query?: string;
+  filter?: string;
+  sort?: string;
 }
