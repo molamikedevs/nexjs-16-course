@@ -20,7 +20,7 @@ const StateSkeleton = ({ image, title, message, button }: StateSkeletonProps) =>
   </div>
 );
 
-const DataRender = <T,>({ success, error, data, empty: DEFAULT_EMPTY, render }: RenderProps<T>) => {
+const DataRenderer = <T,>({ success, error, data, empty: DEFAULT_EMPTY, render }: RenderProps<T>) => {
   if (!success)
     return (
       <StateSkeleton
@@ -51,4 +51,4 @@ const DataRender = <T,>({ success, error, data, empty: DEFAULT_EMPTY, render }: 
   return <div>{render(data)}</div>;
 };
 
-export default DataRender;
+export default DataRenderer;

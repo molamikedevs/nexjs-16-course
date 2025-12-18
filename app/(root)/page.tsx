@@ -1,31 +1,28 @@
 import Link from "next/link";
 
 import { getQuestions } from "@/lib/actions/question.action";
+import { RouteParams } from "@/types/global";
 import { EMPTY_QUESTION } from "@/constants/state";
 import { siteConfig } from "@/config/site";
 import { Button } from "@/components/ui/button";
 
 import QuestionCard from "@/components/cards/question-card";
-import DataRender from "@/components/common/data-render";
 import HomeFilter from "@/components/filters/home-filter";
 import LocalSearch from "@/components/search/local-search";
+import DataRenderer from "@/components/common/data-renderer";
 
 export const metadata = {
   title: "Home",
 };
 
-interface SearchParams {
-  searchParams: Promise<{ [key: string]: string }>;
-}
-
-const Home = async ({ searchParams }: SearchParams) => {
+const Home = async ({ searchParams }: RouteParams) => {
   const { page, pageSize, query, filter } = await searchParams;
 
   const { success, data, error } = await getQuestions({
-    page: page ? Number(page) : 1,
-    pageSize: pageSize ? Number(pageSize) : 10,
-    query: query || "",
-    filter: filter || "all",
+    page: Number(page) || 1,
+    pageSize: Number(pageSize) || 10,
+    query,
+    filter,
   });
 
   const { questions } = data || {};
@@ -39,16 +36,10 @@ const Home = async ({ searchParams }: SearchParams) => {
         </Button>
       </section>
       <section className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
-        <LocalSearch
-          route="/"
-          imgSrc="/icons/search.svg"
-          placeholder="Search..."
-          otherClasses="flex-1"
-          iconPosition="left"
-        />
+        <LocalSearch route="/" imgSrc="/icons/search.svg" placeholder="Search..." otherClasses="flex-1" />
       </section>
       <HomeFilter />
-      <DataRender
+      <DataRenderer
         success={success}
         error={error}
         data={questions}
