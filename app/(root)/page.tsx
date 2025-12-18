@@ -1,10 +1,14 @@
+import Link from "next/link";
+
+import { getQuestions } from "@/lib/actions/question.action";
+import { EMPTY_QUESTION } from "@/constants/state";
+import { siteConfig } from "@/config/site";
+import { Button } from "@/components/ui/button";
+
 import QuestionCard from "@/components/cards/question-card";
+import DataRender from "@/components/common/data-render";
 import HomeFilter from "@/components/filters/home-filter";
 import LocalSearch from "@/components/search/local-search";
-import { Button } from "@/components/ui/button";
-import { siteConfig } from "@/config/site";
-import { getQuestions } from "@/lib/actions/question.action";
-import Link from "next/link";
 
 export const metadata = {
   title: "Home",
@@ -44,21 +48,19 @@ const Home = async ({ searchParams }: SearchParams) => {
         />
       </section>
       <HomeFilter />
-      {success ? (
-        <div className="mt-10 flex w-full flex-col gap-6">
-          {questions && questions.length > 0 ? (
-            questions.map((question) => <QuestionCard key={question._id} question={question} />)
-          ) : (
-            <div className="mt-10 flex w-full items-center justify-center">
-              <p className="text-dark400_light700">No questions found.</p>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="mt-10 flex w-full items-center justify-center">
-          <p className="text-dark400_light700">{error?.message || "Failed to load questions."}</p>
-        </div>
-      )}
+      <DataRender
+        success={success}
+        error={error}
+        data={questions}
+        empty={EMPTY_QUESTION}
+        render={(questions) => (
+          <div className="mt-10 flex w-full flex-col gap-6">
+            {questions.map((question) => (
+              <QuestionCard key={question._id} question={question} />
+            ))}
+          </div>
+        )}
+      />
     </>
   );
 };
