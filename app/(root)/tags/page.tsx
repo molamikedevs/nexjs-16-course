@@ -1,11 +1,11 @@
-import TagCard from "@/components/cards/tag-card";
-import DataRenderer from "@/components/common/data-renderer";
-import DataRender from "@/components/common/data-renderer";
-import LocalSearch from "@/components/search/local-search";
 import { siteConfig } from "@/config/site";
 import { EMPTY_TAGS } from "@/constants/state";
 import { getTags } from "@/lib/actions/tag.action";
 import { RouteParams } from "@/types/global";
+
+import TagCard from "@/components/cards/tag-card";
+import DataRenderer from "@/components/common/data-renderer";
+import LocalSearch from "@/components/search/local-search";
 
 export const metadata = {
   title: "Tags",

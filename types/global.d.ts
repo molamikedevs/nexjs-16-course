@@ -54,7 +54,7 @@ interface RouteParams {
   searchParams: Promise<Record<string, string>>;
 }
 
-interface PaginationSearchParams {
+interface PaginatedSearchParams {
   page?: number;
   pageSize?: number;
   query?: string;
@@ -62,7 +62,7 @@ interface PaginationSearchParams {
   sort?: string;
 }
 
-interface GetTagQuestionsParams extends Omit<PaginationSearchParams, "filter"> {
+interface GetTagQuestionsParams extends Omit<PaginatedSearchParams, "filter"> {
   tagId: string;
 }
 

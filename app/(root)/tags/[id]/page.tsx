@@ -1,49 +1,38 @@
-import Link from "next/link";
-
-import { getQuestions } from "@/lib/actions/question.action";
-import { RouteParams } from "@/types/global";
-import { EMPTY_QUESTION } from "@/constants/state";
 import { siteConfig } from "@/config/site";
-import { Button } from "@/components/ui/button";
+import { EMPTY_QUESTION } from "@/constants/state";
+import { getTagQuestions } from "@/lib/actions/tag.action";
+import { RouteParams } from "@/types/global";
 
 import QuestionCard from "@/components/cards/question-card";
-import HomeFilter from "@/components/filters/home-filter";
-import LocalSearch from "@/components/search/local-search";
 import DataRenderer from "@/components/common/data-renderer";
+import LocalSearch from "@/components/search/local-search";
 
-export const metadata = {
-  title: "Home",
-};
+export default async function TagDetails({ params, searchParams }: RouteParams) {
+  const { id } = await params;
+  const { page, pageSize, query } = await searchParams;
 
-const Home = async ({ searchParams }: RouteParams) => {
-  const { page, pageSize, query, filter } = await searchParams;
-
-  const { success, data, error } = await getQuestions({
+  const { success, data, error } = await getTagQuestions({
+    tagId: id,
     page: Number(page) || 1,
     pageSize: Number(pageSize) || 10,
     query,
-    filter,
   });
 
-  const { questions } = data || {};
+  const { tag, questions } = data || {};
 
   return (
     <>
       <section className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
-        <h1 className="h1-bold text-dark100_light900">All Questions</h1>
-        <Button className="primary-gradient text-light-900! min-h-[46px] px-4 py-3">
-          <Link href={siteConfig.ROUTES.ASK_QUESTION}>Ask Question</Link>
-        </Button>
+        <h1 className="h1-bold text-dark100_light900 capitalize">{tag?.name}</h1>
       </section>
       <section className="mt-11">
         <LocalSearch
-          route={siteConfig.ROUTES.HOME}
+          route={siteConfig.ROUTES.TAG(id)}
           imgSrc="/icons/search.svg"
           placeholder="Search..."
           otherClasses="flex-1"
         />
       </section>
-      <HomeFilter />
       <DataRenderer
         success={success}
         error={error}
@@ -59,6 +48,4 @@ const Home = async ({ searchParams }: RouteParams) => {
       />
     </>
   );
-};
-
-export default Home;
+}

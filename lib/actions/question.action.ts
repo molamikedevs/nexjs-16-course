@@ -1,13 +1,13 @@
 "use server";
 
 import mongoose, { FilterQuery } from "mongoose";
+import Question, { IQuestionDoc } from "@/database/question.model";
+import Tag, { ITagDoc } from "@/database/tag.model";
+import { TagQuestion } from "@/database";
 import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema, PaginatedSearchParamsSchema } from "../validation";
-import { ActionResponse, ErrorResponse, PaginationSearchParams, QuestionParams } from "@/types/global";
+import { ActionResponse, ErrorResponse, PaginatedSearchParams, QuestionParams } from "@/types/global";
 import action from "../handlers/actions";
 import handleError from "../handlers/error";
-import Tag, { ITagDoc } from "@/database/tag.model";
-import Question, { IQuestionDoc } from "@/database/question.model";
-import { TagQuestion } from "@/database";
 
 export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<QuestionParams>> {
   // 1. Validate and authorize the request
@@ -45,7 +45,7 @@ export async function createQuestion(params: CreateQuestionParams): Promise<Acti
         {
           name: { $regex: new RegExp(`^${safeTag}$`, "i") },
         },
-        { $setOnInsert: { name: tag }, $inc: { questionCount: 1 } },
+        { $setOnInsert: { name: tag }, $inc: { questions: 1 } },
         { upsert: true, new: true, session }
       );
 
@@ -181,7 +181,7 @@ export async function getQuestion(params: GetQuestionsParams): Promise<ActionRes
 }
 
 export async function getQuestions(
-  params: PaginationSearchParams
+  params: PaginatedSearchParams
 ): Promise<ActionResponse<{ questions: QuestionParams[]; isNext: boolean }>> {
   // 1. Validate and authorize the request
   const validationResult = await action({
