@@ -62,6 +62,10 @@ interface PaginationSearchParams {
   sort?: string;
 }
 
+interface GetTagQuestionsParams extends Omit<PaginationSearchParams, "filter"> {
+  tagId: string;
+}
+
 interface RenderProps<TItem> {
   success: boolean;
   error?: {
