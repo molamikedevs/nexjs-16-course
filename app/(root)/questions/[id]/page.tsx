@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { after } from "next/server";
 import { siteConfig } from "@/config/site";
-import { getQuestion } from "@/lib/actions/question.action";
+import { getQuestion, incrementViews } from "@/lib/actions/question.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
 import { RouteParams, TagParams } from "@/types/global";
 import { redirect } from "next/navigation";
@@ -12,7 +13,15 @@ import Preview from "@/components/editor/preview";
 
 export default async function QuestionDetails({ params }: RouteParams) {
   const { id } = await params;
-  const { success, data: question, error } = await getQuestion({ questionId: id });
+  const { success, data: question } = await getQuestion({ questionId: id });
+
+  // Using after to increment views is a good choice here because
+  //  it allows the main content to load without
+  // waiting for the view increment operation to complete.
+  after(async () => {
+    await incrementViews({ questionId: id });
+  });
+
   if (!success || !question) return redirect("/404");
   const { author, createdAt, content, title, views, answers, tags } = question;
 
@@ -33,7 +42,6 @@ export default async function QuestionDetails({ params }: RouteParams) {
             </Link>
           </div>
         </div>
-
         <h2 className="h2-semibold text-dark200_light900 mt-3.5 w-full">{title}</h2>
       </div>
 
