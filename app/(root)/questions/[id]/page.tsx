@@ -12,6 +12,7 @@ import Metric from "@/components/common/metric";
 import UserAvatar from "@/components/common/user-avatar";
 import Preview from "@/components/editor/preview";
 import AnswerForm from "@/components/forms/answer-form";
+import AllAnswers from "@/components/answers/all-answers";
 
 export default async function QuestionDetails({ params }: RouteParams) {
   const { id } = await params;
@@ -89,6 +90,15 @@ export default async function QuestionDetails({ params }: RouteParams) {
           <TagCard key={tag._id} _id={tag._id as string} name={tag.name} compact />
         ))}
       </div>
+
+      <section className="my-5">
+        <AllAnswers
+          data={answersData?.answers}
+          success={answersSuccess}
+          error={error}
+          totalAnswers={answersData?.totalAnswers || 0}
+        />
+      </section>
 
       <section className="my-5">
         <AnswerForm questionId={question._id} />
