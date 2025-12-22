@@ -2,8 +2,8 @@
 
 import mongoose from "mongoose";
 import { revalidatePath } from "next/cache";
-import { ActionResponse, ErrorResponse } from "@/types/global";
-import { AnswerServerSchema } from "../validation";
+import { ActionResponse, AnswerParams, ErrorResponse } from "@/types/global";
+import { AnswerServerSchema, GetAnswersSchema } from "../validation";
 import { Question } from "@/database";
 import { siteConfig } from "@/config/site";
 import Answer, { IAnswerDoc } from "@/database/answer.model";
@@ -65,5 +65,59 @@ export async function createAnswer(params: CreateAnswerParams): Promise<ActionRe
     return handleError(error) as ErrorResponse;
   } finally {
     session.endSession();
+  }
+}
+
+export async function getAnswers(
+  params: GetAnswersParams
+): Promise<ActionResponse<{ answers: AnswerParams[]; totalAnswers: number; isNext: boolean }>> {
+  // 1. Validate input parameters
+  const validationResult = await action({
+    params,
+    schema: GetAnswersSchema,
+  });
+  // 2. Handle validation errors
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  // 3. Extract validated data
+  const { page = 1, pageSize = 10, questionId, filter } = validationResult.params!;
+  const skip = (Number(page) - 1) * pageSize;
+  const limit = pageSize;
+
+  // 4. Fetch answers from the database through sorting, pagination, and filtering
+  let sortOption = {};
+  switch (filter) {
+    case "latest":
+      sortOption = { createdAt: -1 };
+      break;
+    case "oldest":
+      sortOption = { createdAt: 1 };
+      break;
+    case "popular":
+      sortOption = { upVotes: -1 };
+      break;
+    default:
+      sortOption = { createdAt: -1 };
+      break;
+  }
+
+  try {
+    // 5. Get total count and paginated answers
+    const totalAnswers = await Answer.countDocuments({ question: questionId });
+    const answers = await Answer.find({ question: questionId })
+      .populate("author", "_id name image")
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit);
+
+    // 6. Determine if there is a next page
+    const isNext = totalAnswers > skip + answers.length;
+
+    // 7. Return success response with answers and total count
+    return { success: true, data: { answers: JSON.parse(JSON.stringify(answers)), totalAnswers, isNext } };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
   }
 }

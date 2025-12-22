@@ -30,6 +30,17 @@ interface GetQuestionsParams {
   questionId: string;
 }
 
+interface PaginatedSearchParams {
+  page?: number;
+  pageSize?: number;
+  query?: string;
+  filter?: string;
+  sort?: string;
+}
+
+interface GetTagQuestionsParams extends Omit<PaginatedSearchParams, "filter"> {
+  tagId: string;
+}
 
 interface IncrementViewsParams {
   questionId: string;
@@ -38,4 +49,8 @@ interface IncrementViewsParams {
 interface CreateAnswerParams {
   questionId: string;
   content: string;
+}
+
+interface GetAnswersParams extends PaginatedSearchParams {
+  questionId: string;
 }

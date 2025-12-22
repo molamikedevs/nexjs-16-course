@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { siteConfig } from "@/config/site";
 import { getQuestion, incrementViews } from "@/lib/actions/question.action";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
 import { RouteParams, TagParams } from "@/types/global";
-import { redirect } from "next/navigation";
+import { getAnswers } from "@/lib/actions/answer.action";
 
 import TagCard from "@/components/cards/tag-card";
 import Metric from "@/components/common/metric";
@@ -24,6 +25,18 @@ export default async function QuestionDetails({ params }: RouteParams) {
   });
 
   if (!success || !question) return redirect("/404");
+
+  const {
+    success: answersSuccess,
+    data: answersData,
+    error,
+  } = await getAnswers({
+    questionId: id,
+    page: 1,
+    pageSize: 10,
+    filter: "latest",
+  });
+
   const { author, createdAt, content, title, views, answers, tags } = question;
 
   return (

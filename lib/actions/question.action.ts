@@ -202,8 +202,8 @@ export async function getQuestions(
 
   // 2. Extract validated params and set limit and skip for pagination
   const { page = 1, pageSize = 10, query, filter } = params!;
-  const skip = (Number(page) - 1) * Number(pageSize);
-  const limit = Number(pageSize);
+  const skip = (Number(page) - 1) * pageSize;
+  const limit = pageSize;
 
   // 3. Build filter query based on search and filter parameters
   const filterQuery: FilterQuery<typeof Question> = {};

@@ -26,6 +26,13 @@ interface QuestionParams {
   views: number;
 }
 
+interface AnswerParams {
+  _id: string;
+  content: string;
+  author: Author;
+  createdAt: Date;
+}
+
 // Standardized response type for API actions
 type ActionResponse<T = null> = {
   success: boolean;
