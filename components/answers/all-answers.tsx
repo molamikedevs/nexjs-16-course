@@ -1,6 +1,6 @@
 import { ActionResponse, AnswerParams } from "@/types/global";
-import DataRenderer from "../common/data-renderer";
 import { EMPTY_ANSWERS } from "@/constants/state";
+import DataRenderer from "../common/data-renderer";
 import AnswerCard from "../cards/answer-card";
 
 interface AllAnswersProps extends ActionResponse<AnswerParams[]> {

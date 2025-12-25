@@ -13,6 +13,7 @@ import UserAvatar from "@/components/common/user-avatar";
 import Preview from "@/components/editor/preview";
 import AnswerForm from "@/components/forms/answer-form";
 import AllAnswers from "@/components/answers/all-answers";
+import Votes from "@/components/votes/votes";
 
 export default async function QuestionDetails({ params }: RouteParams) {
   const { id } = await params;
@@ -55,6 +56,10 @@ export default async function QuestionDetails({ params }: RouteParams) {
             <Link href={siteConfig.ROUTES.PROFILE(author._id)}>
               <p className="paragraph-semibold text-dark300_light700">{author.name}</p>
             </Link>
+          </div>
+
+          <div className="flex justify-end">
+            <Votes upVotes={question?.upVotes} downVotes={question?.downVotes} hasUpVoted={true} hasDownVoted={false} />
           </div>
         </div>
         <h2 className="h2-semibold text-dark200_light900 mt-3.5 w-full">{title}</h2>
