@@ -15,7 +15,7 @@ function isError(error: unknown): error is Error {
 
 // Generic fetch handler with timeout and error handling
 export async function fetchHandler<T>(url: string, options: FetchOptions = {}): Promise<ActionResponse<T>> {
-    const { timeout = 5000, headers: customHeaders = {}, ...fetchOptions } = options;
+    const { timeout = 100000, headers: customHeaders = {}, ...fetchOptions } = options;
 
     // Abort request after timeout
     const controller = new AbortController();
