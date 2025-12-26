@@ -2,105 +2,146 @@
 
 import mongoose, { ClientSession } from "mongoose";
 import { ActionResponse, ErrorResponse } from "@/types/global";
-import { CreateVoteSchema, UpdateVoteCountSchema } from "../validation";
+import { CreateVoteSchema, HasVotedSchema, UpdateVoteCountSchema } from "../validation";
 import { Answer, Question, Vote } from "@/database";
 import action from "../handlers/actions";
 import handleError from "../handlers/error";
 
-
 export async function updateVoteCount(params: UpdateVoteCountParams, session?: ClientSession): Promise<ActionResponse> {
-    // 1. Validate input parameters and authorize
-    const validationResult = await action({
-        params,
-        schema: UpdateVoteCountSchema,
-    });
-    if (validationResult instanceof Error) {
-        return handleError(validationResult) as ErrorResponse;
-    }
+  // 1. Validate input parameters and authorize
+  const validationResult = await action({
+    params,
+    schema: UpdateVoteCountSchema,
+  });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
 
-    // 2. Extract validated data and determine model and vote field
-    const { targetId, voteType, targetType, change } = validationResult.params!;
-    const model = targetType === "question" ? Question : Answer;
-    const voteField = voteType === "upvote" ? "upVotes" : "downVotes";
+  // 2. Extract validated data and determine model and vote field
+  const { targetId, voteType, targetType, change } = validationResult.params!;
+  const model = targetType === "question" ? Question : Answer;
+  const voteField = voteType === "upvote" ? "upVotes" : "downVotes";
 
-    try {
-        // 3. Update the vote count dynamically and return the result
-        // this update could be either the question or answer model
-       const result = await model.findByIdAndUpdate(
-            targetId,
-            { $inc: { [voteField]: change } },
-            { new: true, session }
-        );
-        if (!result) throw new Error("Failed to update vote count");
-        return { success: true, data: result }; 
-    } catch (error) {
-       return handleError(error) as ErrorResponse; 
-    }
-
+  try {
+    // 3. Update the vote count dynamically and return the result
+    // The 'session' argument ensures this runs within a transaction
+    const result = await model.findByIdAndUpdate(
+      targetId,
+      // Atomic operator $inc prevents race conditions
+      // Dynamic key [voteField] allows reusability (upvotes vs downvotes)
+      { $inc: { [voteField]: change } },
+      { new: true, session }
+    );
+    if (!result) throw new Error("Failed to update vote count");
+    return { success: true, data: result };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
 }
 
 export async function createVote(params: CreateVoteParams): Promise<ActionResponse> {
-    // 1. Validate input parameters and authorize
-    const validationResult = await action({
-        params,
-        schema: CreateVoteSchema,
-        authorize: true,
+  // 1. Validate input parameters and authorize
+  const validationResult = await action({
+    params,
+    schema: CreateVoteSchema,
+    authorize: true,
+  });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  // 2. Extract validated data and get user ID if no userId
+  // return unauthorized
+  const { targetId, voteType, targetType } = validationResult.params!;
+  const userId = validationResult.session?.user?.id;
+  if (!userId) return handleError(new Error("unauthorized")) as ErrorResponse;
+
+  // 3. Start a mongoose session for transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // 4. Check for existing vote by the user on the target if there is
+    // update or remove it accordingly by calling the voteCount action, else create a new vote
+    const existingVote = await Vote.findOne({
+      author: userId,
+      actionId: targetId,
+      actionType: targetType,
+    }).session(session);
+    if (existingVote) {
+      if (existingVote.type === voteType) {
+        await existingVote.deleteOne({ session });
+        await updateVoteCount({ targetId, voteType, targetType, change: -1 }, session);
+      } else {
+        await Vote.findByIdAndUpdate(existingVote._id, { voteType }, { new: true, session });
+        await updateVoteCount({ targetId, voteType, targetType, change: 1 }, session);
+      }
+    } else {
+      await Vote.create(
+        [
+          {
+            targetId,
+            voteType,
+            targetType,
+            change: 1,
+          },
+        ],
+        { session }
+      );
+      await updateVoteCount({ targetId, voteType, targetType, change: 1 }, session);
+    }
+
+    // 5. Commit the transaction and return success
+    await session.commitTransaction();
+    return { success: true };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  } finally {
+    session.endSession();
+  }
+}
+
+export async function hasVoted(params: HasVotedParams): Promise<ActionResponse<HasVotedResponse>> {
+  // 1. Validate input parameters and authorize
+  const validationResult = await action({
+    params,
+    schema: HasVotedSchema,
+    authorize: true,
+  });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  // 2. Extract validated data and get user ID if no userId
+  // return unauthorized
+  const { targetId, targetType } = validationResult.params!;
+  const userId = validationResult.session?.user?.id;
+  if (!userId) return handleError(new Error("unauthorized")) as ErrorResponse;
+
+  try {
+    const vote = await Vote.findOne({
+      author: userId,
+      actionId: targetId,
+      actionType: targetType,
     });
-    if (validationResult instanceof Error) {
-        return handleError(validationResult) as ErrorResponse;
+    if (!vote) {
+      return {
+        success: false,
+        data: {
+          hasUpVoted: false,
+          hasDownVoted: false,
+        },
+      };
+    } else {
+      return {
+        success: true,
+        data: {
+          hasUpVoted: vote?.type === "upvote",
+          hasDownVoted: vote?.type === "downvote",
+        },
+      };
     }
-
-    // 2. Extract validated data and get user ID if no userId 
-    // return unauthorized
-    const { targetId, voteType, targetType } = validationResult.params!;
-    const userId = validationResult.session?.user?.id;
-    if (!userId) return handleError(new Error("unauthorized")) as ErrorResponse;
-
-    // 3. Start a mongoose session for transaction
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-        // 4. Check for existing vote by the user on the target if there is
-        // update or remove it accordingly by calling the voteCount action, else create a new vote
-        const existingVote = await Vote.findOne({
-            author: userId,
-            actionId: targetId,
-            actionType: targetType,
-        }).session(session);
-        if (existingVote) {
-            if (existingVote.type === voteType) {
-                await existingVote.deleteOne({ session });
-                await updateVoteCount({ targetId, voteType, targetType, change: -1 }, session);
-            } else {
-                await Vote.findByIdAndUpdate(
-                    existingVote._id,
-                    { voteType },
-                    { new: true, session }
-                );
-                await updateVoteCount({ targetId, voteType, targetType, change: 1 }, session);
-            }
-        } else {
-            await Vote.create(
-                [
-                    {
-                        targetId,
-                        voteType,
-                        targetType,
-                        change: 1,
-                    }
-                ], { session }
-            );
-            await updateVoteCount({ targetId, voteType, targetType, change: 1 }, session);
-        }
-
-        // 5. Commit the transaction and return success
-        await session.commitTransaction();
-        return { success: true };
-    } catch (error) {
-        return handleError(error) as ErrorResponse;
-    } finally {
-        session.endSession();
-    }
-  
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
 }
