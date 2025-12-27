@@ -29,6 +29,8 @@ interface AnswerParams {
   content: string;
   author: Author;
   createdAt: Date;
+  upVotes: number;
+  downVotes: number;
 }
 
 // Standardized response type for API actions
@@ -101,4 +103,16 @@ interface StateSkeletonProps {
     text: string;
     href: string;
   };
+}
+
+interface UserParams {
+  _id: string;
+  name: string;
+  username: string;
+  email: string;
+  image?: string;
+  bio?: string;
+  location?: string;
+  portfolio?: string;
+  reputation: number;
 }

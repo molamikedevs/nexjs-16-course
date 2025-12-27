@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
-import { siteConfig } from "@/config/site";
+import { Suspense } from "react";
+import { hasVoted } from "@/lib/actions/vote.action";
+import { getAnswers } from "@/lib/actions/answer.action";
 import { getQuestion, incrementViews } from "@/lib/actions/question.action";
+import { siteConfig } from "@/config/site";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
 import { RouteParams, TagParams } from "@/types/global";
-import { getAnswers } from "@/lib/actions/answer.action";
 
 import TagCard from "@/components/cards/tag-card";
 import Metric from "@/components/common/metric";
@@ -14,8 +16,6 @@ import Preview from "@/components/editor/preview";
 import AnswerForm from "@/components/forms/answer-form";
 import AllAnswers from "@/components/answers/all-answers";
 import Votes from "@/components/votes/votes";
-import { hasVoted } from "@/lib/actions/vote.action";
-import { Suspense } from "react";
 
 export default async function QuestionDetails({ params }: RouteParams) {
   const { id } = await params;
