@@ -1,51 +1,71 @@
-'use client';
-
+"use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { use, useState } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { formatNumber } from "@/lib/utils";
+import { ActionResponse } from "@/types/global";
+import { createVote } from "@/lib/actions/vote.action";
 
 interface VotesProps {
-    upVotes: number;
-    downVotes: number;
-    hasUpVoted: boolean;
-    hasDownVoted: boolean;
+  upVotes: number;
+  downVotes: number;
+  targetType: "question" | "answer";
+  targetId: string;
+  hasVotedPromise: Promise<ActionResponse<HasVotedResponse>>;
 }
 
-export default function Votes({ upVotes, downVotes, hasUpVoted, hasDownVoted }: VotesProps) {
-    const [isLoading, setIsLoading] = useState(false);
-    const session = useSession();
-    const userId = session.data?.user?.id;
+export default function Votes({ upVotes, downVotes, targetType, targetId, hasVotedPromise }: VotesProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const session = useSession();
+  const userId = session.data?.user?.id;
 
-    const handleVote = async (type: "upvote" | "downvote") => {
-        if (!userId) return toast.error("You must be logged in to vote.");
-        setIsLoading(true);
-        try {
-            const successMessage =
-                type === "upvote"
-                    ? `Upvoted ${hasUpVoted ? "added" : "removed"} successfully.`
-                    : `Downvoted ${hasDownVoted ? "added" : "removed"} successfully.`;
-                    toast.success(successMessage, {
-                        description: `You have ${hasUpVoted || hasDownVoted ? "removed" : "added"} your ${type}.`,
-                    });
-        } catch (error) {
-            toast.error("An error occurred while processing your vote.", {
-                description: (error as Error).message,
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  const { data, success } = use(hasVotedPromise);
+  const { hasUpVoted, hasDownVoted } = data || {};
 
-    return (
-         <div className="flex-center gap-2.5">
+  const handleVote = async (voteType: "upvote" | "downvote") => {
+    if (!userId) return toast.error("You must be logged in to vote.");
+    setIsLoading(true);
+
+    try {
+      const result = await createVote({
+        targetId,
+        targetType,
+        voteType,
+      });
+
+      if (!result.success) {
+        toast.error("Failed to process your vote.", {
+          description: result.error?.message || "Please try again later.",
+          descriptionClassName: "danger",
+        });
+      }
+
+      const successMessage =
+        voteType === "upvote"
+          ? `Upvote ${!hasUpVoted ? "added" : "removed"} successfully`
+          : `Downvote ${!hasDownVoted ? "added" : "removed"} successfully`;
+
+      toast.success(successMessage, {
+        description: "Your vote has been recorded.",
+        descriptionClassName: "success",
+      });
+    } catch (error) {
+      toast.error("An error occurred while processing your vote.", {
+        description: (error as Error).message,
+        descriptionClassName: "danger",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex-center gap-2.5">
       <div className="flex-center gap-1.5">
         <Image
-          src={
-            hasUpVoted ? "/icons/upvoted.svg" : "/icons/upvote.svg"
-          }
+          src={success && hasUpVoted ? "/icons/upvote.svg" : "/icons/upvoted.svg"}
           width={18}
           height={18}
           alt="upvote"
@@ -55,19 +75,13 @@ export default function Votes({ upVotes, downVotes, hasUpVoted, hasDownVoted }: 
         />
 
         <div className="flex-center background-light700_dark400 min-w-5 rounded-sm p-1">
-          <p className="subtle-medium text-dark400_light900">
-            {formatNumber(upVotes)}
-          </p>
+          <p className="subtle-medium text-dark400_light900">{formatNumber(upVotes)}</p>
         </div>
       </div>
 
       <div className="flex-center gap-1.5">
         <Image
-          src={
-              hasDownVoted
-              ? "/icons/downvoted.svg"
-              : "/icons/downvote.svg"
-          }
+          src={success && hasDownVoted ? "/icons/downvote.svg" : "/icons/downvoted.svg"}
           width={18}
           height={18}
           alt="downvote"
@@ -77,11 +91,9 @@ export default function Votes({ upVotes, downVotes, hasUpVoted, hasDownVoted }: 
         />
 
         <div className="flex-center background-light700_dark400 min-w-5 rounded-sm p-1">
-          <p className="subtle-medium text-dark400_light900">
-            {formatNumber(downVotes)}
-          </p>
+          <p className="subtle-medium text-dark400_light900">{formatNumber(downVotes)}</p>
         </div>
       </div>
     </div>
-    )
+  );
 }

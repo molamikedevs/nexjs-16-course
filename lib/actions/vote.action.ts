@@ -6,6 +6,8 @@ import { CreateVoteSchema, HasVotedSchema, UpdateVoteCountSchema } from "../vali
 import { Answer, Question, Vote } from "@/database";
 import action from "../handlers/actions";
 import handleError from "../handlers/error";
+import { revalidatePath } from "next/cache";
+import { siteConfig } from "@/config/site";
 
 export async function updateVoteCount(params: UpdateVoteCountParams, session?: ClientSession): Promise<ActionResponse> {
   // 1. Validate input parameters and authorize
@@ -54,7 +56,7 @@ export async function createVote(params: CreateVoteParams): Promise<ActionRespon
   // return unauthorized
   const { targetId, voteType, targetType } = validationResult.params!;
   const userId = validationResult.session?.user?.id;
-  if (!userId) return handleError(new Error("unauthorized")) as ErrorResponse;
+  if (!userId) return handleError(new Error("Unauthorized")) as ErrorResponse;
 
   // 3. Start a mongoose session for transaction
   const session = await mongoose.startSession();
@@ -68,22 +70,50 @@ export async function createVote(params: CreateVoteParams): Promise<ActionRespon
       actionId: targetId,
       actionType: targetType,
     }).session(session);
+
     if (existingVote) {
-      if (existingVote.type === voteType) {
+      if (existingVote.voteType === voteType) {
+        // If user is voting again with the same vote type, remove the vote
         await existingVote.deleteOne({ session });
-        await updateVoteCount({ targetId, voteType, targetType, change: -1 }, session);
+        await updateVoteCount(
+          {
+            targetId,
+            voteType,
+            targetType,
+            change: -1,
+          },
+          session
+        );
       } else {
+        // If user is changing their vote, update voteType and adjust counts
         await Vote.findByIdAndUpdate(existingVote._id, { voteType }, { new: true, session });
-        await updateVoteCount({ targetId, voteType, targetType, change: 1 }, session);
-      }
-    } else {
-      await Vote.create(
-        [
+        await updateVoteCount(
+          {
+            targetId,
+            voteType: existingVote.voteType,
+            targetType,
+            change: -1,
+          },
+          session
+        );
+        await updateVoteCount(
           {
             targetId,
             voteType,
             targetType,
             change: 1,
+          },
+          session
+        );
+      }
+    } else {
+      await Vote.create(
+        [
+          {
+            author: userId,
+            actionId: targetId,
+            actionType: targetType,
+            voteType,
           },
         ],
         { session }
@@ -91,8 +121,11 @@ export async function createVote(params: CreateVoteParams): Promise<ActionRespon
       await updateVoteCount({ targetId, voteType, targetType, change: 1 }, session);
     }
 
-    // 5. Commit the transaction and return success
+    // 5. Commit the transaction and revalidate the path
     await session.commitTransaction();
+    revalidatePath(siteConfig.ROUTES.QUESTION(targetId));
+
+    // 6. Return success response
     return { success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
@@ -116,7 +149,7 @@ export async function hasVoted(params: HasVotedParams): Promise<ActionResponse<H
   // return unauthorized
   const { targetId, targetType } = validationResult.params!;
   const userId = validationResult.session?.user?.id;
-  if (!userId) return handleError(new Error("unauthorized")) as ErrorResponse;
+  if (!userId) return handleError(new Error("Unauthorized")) as ErrorResponse;
 
   try {
     const vote = await Vote.findOne({

@@ -14,6 +14,8 @@ import Preview from "@/components/editor/preview";
 import AnswerForm from "@/components/forms/answer-form";
 import AllAnswers from "@/components/answers/all-answers";
 import Votes from "@/components/votes/votes";
+import { hasVoted } from "@/lib/actions/vote.action";
+import { Suspense } from "react";
 
 export default async function QuestionDetails({ params }: RouteParams) {
   const { id } = await params;
@@ -39,6 +41,11 @@ export default async function QuestionDetails({ params }: RouteParams) {
     filter: "latest",
   });
 
+  const hasVotedPromise = hasVoted({
+    targetId: question._id,
+    targetType: "question",
+  });
+
   const { author, createdAt, content, title, views, answers, tags } = question;
 
   return (
@@ -59,7 +66,15 @@ export default async function QuestionDetails({ params }: RouteParams) {
           </div>
 
           <div className="flex justify-end">
-            <Votes upVotes={question?.upVotes} downVotes={question?.downVotes} hasUpVoted={true} hasDownVoted={false} />
+            <Suspense fallback={<div className="flex-center h-8 w-20">Loading...</div>}>
+              <Votes
+                upVotes={question?.upVotes}
+                downVotes={question?.downVotes}
+                targetType="question"
+                targetId={question?._id}
+                hasVotedPromise={hasVotedPromise}
+              />
+            </Suspense>
           </div>
         </div>
         <h2 className="h2-semibold text-dark200_light900 mt-3.5 w-full">{title}</h2>

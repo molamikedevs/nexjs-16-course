@@ -1,6 +1,4 @@
-import { inter } from "@/config/font";
 import { NextResponse } from "next/server";
-import { int } from "zod";
 
 interface TagParams {
   _id: string;
