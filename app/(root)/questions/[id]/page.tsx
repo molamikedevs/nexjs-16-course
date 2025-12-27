@@ -16,6 +16,9 @@ import Preview from "@/components/editor/preview";
 import AnswerForm from "@/components/forms/answer-form";
 import AllAnswers from "@/components/answers/all-answers";
 import Votes from "@/components/votes/votes";
+import { Spinner } from "@/components/ui/spinner";
+import SaveQuestion from "@/components/questions/save-question";
+import { hasSavedQuestion } from "@/lib/actions/collection.action";
 
 export default async function QuestionDetails({ params }: RouteParams) {
   const { id } = await params;
@@ -46,6 +49,8 @@ export default async function QuestionDetails({ params }: RouteParams) {
     targetType: "question",
   });
 
+  const hasSavedPromise = hasSavedQuestion({ questionId: question._id });
+
   const { author, createdAt, content, title, views, answers, tags } = question;
 
   return (
@@ -65,8 +70,8 @@ export default async function QuestionDetails({ params }: RouteParams) {
             </Link>
           </div>
 
-          <div className="flex justify-end">
-            <Suspense fallback={<div className="flex-center h-8 w-20">Loading...</div>}>
+          <div className="flex items-center justify-end gap-4">
+            <Suspense fallback={<Spinner />}>
               <Votes
                 upVotes={question?.upVotes}
                 downVotes={question?.downVotes}
@@ -74,6 +79,10 @@ export default async function QuestionDetails({ params }: RouteParams) {
                 targetId={question?._id}
                 hasVotedPromise={hasVotedPromise}
               />
+            </Suspense>
+
+            <Suspense fallback={<Spinner />}>
+              <SaveQuestion questionId={question?._id} hasSavedPromise={hasSavedPromise} />
             </Suspense>
           </div>
         </div>
