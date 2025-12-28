@@ -116,3 +116,9 @@ interface UserParams {
   portfolio?: string;
   reputation: number;
 }
+
+interface CollectionParams {
+  _id: string;
+  author: string | Author;
+  question: QuestionParams;
+}
