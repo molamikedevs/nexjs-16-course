@@ -10,6 +10,8 @@ import QuestionCard from "@/components/cards/question-card";
 import HomeFilter from "@/components/filters/home-filter";
 import LocalSearch from "@/components/search/local-search";
 import DataRenderer from "@/components/common/data-renderer";
+import CommonFilter from "@/components/filters/common-filter";
+import { HomePageFilters } from "@/constants/filters";
 
 export const metadata = {
   title: "Home",
@@ -35,12 +37,18 @@ const Home = async ({ searchParams }: RouteParams) => {
           <Link href={siteConfig.ROUTES.ASK_QUESTION}>Ask Question</Link>
         </Button>
       </section>
-      <section className="mt-11">
+      <section className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearch
           route={siteConfig.ROUTES.HOME}
           imgSrc="/icons/search.svg"
           placeholder="Search..."
           otherClasses="flex-1"
+        />
+
+        <CommonFilter
+          filters={HomePageFilters}
+          otherClasses="min-h-[56px] sm:min-w-[170px]"
+          containerClasses="hidden max-md:flex"
         />
       </section>
       <HomeFilter />
