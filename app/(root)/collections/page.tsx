@@ -6,6 +6,8 @@ import { siteConfig } from "@/config/site";
 import QuestionCard from "@/components/cards/question-card";
 import LocalSearch from "@/components/search/local-search";
 import DataRenderer from "@/components/common/data-renderer";
+import CommonFilter from "@/components/filters/common-filter";
+import { CollectionFilters } from "@/constants/filters";
 
 export const metadata = {
   title: "Collections",
@@ -32,6 +34,8 @@ const Collections = async ({ searchParams }: RouteParams) => {
           placeholder="Search questions..."
           otherClasses="flex-1"
         />
+
+        <CommonFilter filters={CollectionFilters} otherClasses="min-h-[56px] sm:min-w-[170px]" />
       </div>
 
       <DataRenderer

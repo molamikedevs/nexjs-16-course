@@ -2,12 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { Suspense } from "react";
-import { hasVoted } from "@/lib/actions/vote.action";
-import { getAnswers } from "@/lib/actions/answer.action";
 import { getQuestion, incrementViews } from "@/lib/actions/question.action";
+import { hasSavedQuestion } from "@/lib/actions/collection.action";
+import { getAnswers } from "@/lib/actions/answer.action";
+import { hasVoted } from "@/lib/actions/vote.action";
 import { siteConfig } from "@/config/site";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
 import { RouteParams, TagParams } from "@/types/global";
+import { Spinner } from "@/components/ui/spinner";
 
 import TagCard from "@/components/cards/tag-card";
 import Metric from "@/components/common/metric";
@@ -16,17 +18,17 @@ import Preview from "@/components/editor/preview";
 import AnswerForm from "@/components/forms/answer-form";
 import AllAnswers from "@/components/answers/all-answers";
 import Votes from "@/components/votes/votes";
-import { Spinner } from "@/components/ui/spinner";
 import SaveQuestion from "@/components/questions/save-question";
-import { hasSavedQuestion } from "@/lib/actions/collection.action";
 
-export default async function QuestionDetails({ params }: RouteParams) {
+export default async function QuestionDetails({ params, searchParams }: RouteParams) {
   const { id } = await params;
+  const { page, pageSize, filter } = await searchParams;
+
   const { success, data: question } = await getQuestion({ questionId: id });
 
-  // Using after to increment views is a good choice here because
-  //  it allows the main content to load without
-  // waiting for the view increment operation to complete.
+  /* Using after to increment views is a good choice here because
+  it allows the main content to load without waiting for the view 
+  increment operation to complete.*/
   after(async () => {
     await incrementViews({ questionId: id });
   });
@@ -39,9 +41,9 @@ export default async function QuestionDetails({ params }: RouteParams) {
     error,
   } = await getAnswers({
     questionId: id,
-    page: 1,
-    pageSize: 10,
-    filter: "latest",
+    page: Number(page) || 1,
+    pageSize: Number(pageSize) || 10,
+    filter,
   });
 
   const hasVotedPromise = hasVoted({

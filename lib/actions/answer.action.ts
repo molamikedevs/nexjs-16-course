@@ -70,7 +70,7 @@ export async function createAnswer(params: CreateAnswerParams): Promise<ActionRe
 
 export async function getAnswers(
   params: GetAnswersParams
-): Promise<ActionResponse<{ answers: AnswerParams[]; totalAnswers: number; isNext: boolean }>> {
+): Promise<ActionResponse<{ answers: AnswerParams[]; isNext: boolean; totalAnswers: number }>> {
   // 1. Validate input parameters
   const validationResult = await action({
     params,
@@ -82,12 +82,13 @@ export async function getAnswers(
   }
 
   // 3. Extract validated data
-  const { page = 1, pageSize = 10, questionId, filter } = validationResult.params!;
+  const { page = 1, pageSize = 10, questionId, filter } = params!;
   const skip = (Number(page) - 1) * pageSize;
   const limit = pageSize;
 
   // 4. Fetch answers from the database through sorting, pagination, and filtering
   let sortOption = {};
+
   switch (filter) {
     case "latest":
       sortOption = { createdAt: -1 };
