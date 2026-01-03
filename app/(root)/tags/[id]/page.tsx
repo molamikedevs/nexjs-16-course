@@ -6,6 +6,7 @@ import { RouteParams } from "@/types/global";
 import QuestionCard from "@/components/cards/question-card";
 import DataRenderer from "@/components/common/data-renderer";
 import LocalSearch from "@/components/search/local-search";
+import Pagination from "@/components/common/pagination";
 
 export default async function TagDetails({ params, searchParams }: RouteParams) {
   const { id } = await params;
@@ -18,7 +19,7 @@ export default async function TagDetails({ params, searchParams }: RouteParams) 
     query,
   });
 
-  const { tag, questions } = data || {};
+  const { tag, questions, isNext } = data || {};
 
   return (
     <>
@@ -46,6 +47,8 @@ export default async function TagDetails({ params, searchParams }: RouteParams) 
           </div>
         )}
       />
+
+      <Pagination page={page} isNext={data?.isNext || false} />
     </>
   );
 }

@@ -8,6 +8,7 @@ import LocalSearch from "@/components/search/local-search";
 import DataRenderer from "@/components/common/data-renderer";
 import CommonFilter from "@/components/filters/common-filter";
 import { CollectionFilters } from "@/constants/filters";
+import Pagination from "@/components/common/pagination";
 
 export const metadata = {
   title: "Collections",
@@ -18,12 +19,12 @@ const Collections = async ({ searchParams }: RouteParams) => {
 
   const { success, data, error } = await getSavedQuestions({
     page: Number(page) || 1,
-    pageSize: Number(pageSize) || 10,
+    pageSize: Number(pageSize) || 1,
     query: query || "",
     filter: filter || "",
   });
 
-  const { collections } = data || {};
+  const { collections, isNext } = data || {};
   return (
     <>
       <h1 className="h1-bold text-dark100_light900">Saved Questions</h1>
@@ -51,6 +52,8 @@ const Collections = async ({ searchParams }: RouteParams) => {
           </div>
         )}
       />
+
+      <Pagination page={page} isNext={isNext || false} containerClasses="mt-4" />
     </>
   );
 };

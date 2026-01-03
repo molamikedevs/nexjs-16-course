@@ -8,6 +8,7 @@ import DataRenderer from "@/components/common/data-renderer";
 import LocalSearch from "@/components/search/local-search";
 import CommonFilter from "@/components/filters/common-filter";
 import { TagFilters } from "@/constants/filters";
+import Pagination from "@/components/common/pagination";
 
 export const metadata = {
   title: "Tags",
@@ -22,7 +23,7 @@ export default async function TagsPage({ searchParams }: RouteParams) {
     filter,
   });
 
-  const { tags } = data || {};
+  const { tags, isNext } = data || {};
 
   return (
     <>
@@ -52,6 +53,8 @@ export default async function TagsPage({ searchParams }: RouteParams) {
           </div>
         )}
       />
+
+      <Pagination page={page} isNext={isNext || false} />
     </>
   );
 }

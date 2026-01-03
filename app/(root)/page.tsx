@@ -12,6 +12,7 @@ import LocalSearch from "@/components/search/local-search";
 import DataRenderer from "@/components/common/data-renderer";
 import CommonFilter from "@/components/filters/common-filter";
 import { HomePageFilters } from "@/constants/filters";
+import Pagination from "@/components/common/pagination";
 
 export const metadata = {
   title: "Home",
@@ -27,7 +28,7 @@ const Home = async ({ searchParams }: RouteParams) => {
     filter,
   });
 
-  const { questions } = data || {};
+  const { questions, isNext } = data || {};
 
   return (
     <>
@@ -65,6 +66,8 @@ const Home = async ({ searchParams }: RouteParams) => {
           </div>
         )}
       />
+
+      <Pagination page={page} isNext={isNext || false} />
     </>
   );
 };

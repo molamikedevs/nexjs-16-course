@@ -8,6 +8,7 @@ import DataRenderer from "@/components/common/data-renderer";
 import LocalSearch from "@/components/search/local-search";
 import CommonFilter from "@/components/filters/common-filter";
 import { HomePageFilters, UserFilters } from "@/constants/filters";
+import Pagination from "@/components/common/pagination";
 
 export default async function CommunityPage({ searchParams }: RouteParams) {
   const { page, pageSize, query, filter } = await searchParams;
@@ -18,7 +19,7 @@ export default async function CommunityPage({ searchParams }: RouteParams) {
     filter,
   });
 
-  const { users } = data || {};
+  const { users, isNext } = data || {};
 
   return (
     <>
@@ -47,6 +48,8 @@ export default async function CommunityPage({ searchParams }: RouteParams) {
           </div>
         )}
       />
+
+      <Pagination page={page} isNext={isNext || false} />
     </>
   );
 }

@@ -5,12 +5,15 @@ import { AnswerFilters } from "@/constants/filters";
 import DataRenderer from "../common/data-renderer";
 import AnswerCard from "../cards/answer-card";
 import CommonFilter from "../filters/common-filter";
+import Pagination from "../common/pagination";
 
 interface AllAnswersProps extends ActionResponse<AnswerParams[]> {
   totalAnswers: number;
+  page: number;
+  isNext: boolean;
 }
 
-export default function AllAnswers({ data, success, error, totalAnswers }: AllAnswersProps) {
+export default function AllAnswers({ data, success, error, totalAnswers, page, isNext }: AllAnswersProps) {
   return (
     <div className="mt-11">
       <div className="max-xs:flex-col max-xs:items-start flex justify-between gap-5 sm:items-center">
@@ -27,6 +30,8 @@ export default function AllAnswers({ data, success, error, totalAnswers }: AllAn
         empty={EMPTY_ANSWERS}
         render={(answers) => answers.map((answer) => <AnswerCard key={answer._id} {...answer} />)}
       />
+
+      <Pagination page={page} isNext={isNext} />
     </div>
   );
 }
