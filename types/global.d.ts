@@ -114,12 +114,19 @@ interface UserParams {
   image?: string;
   bio?: string;
   location?: string;
-  portfolio?: string;
+  portfolioUrl?: string;
   reputation: number;
+  createdAt: Date;
 }
 
 interface CollectionParams {
   _id: string;
   author: string | Author;
   question: QuestionParams;
+}
+
+interface BadgeCounts {
+  gold: number;
+  silver: number;
+  bronze: number;
 }
