@@ -9,36 +9,34 @@ import { SheetClose } from "@/components/ui/sheet";
 import { sidebarLinks } from "@/constants";
 import { cn } from "@/lib/utils";
 
-const NavLinks = ({
-  isMobileNav = false,
-  userId,
-}: {
+interface NavLinksProps {
   isMobileNav?: boolean;
   userId?: string;
-}) => {
+}
+
+const NavLinks = ({ isMobileNav = false, userId }: NavLinksProps) => {
   const pathname = usePathname();
 
   return (
-    <>
+    <nav className="mt-4 flex flex-col gap-3">
       {sidebarLinks.map((item) => {
-        const isActive =
-          (pathname.includes(item.route) && item.route.length > 1) ||
-          pathname === item.route;
+        const isActive = (pathname.includes(item.route) && item.route.length > 1) || pathname === item.route;
 
-         let route = item.route;
-        if (route === "/profile") {
-          if (userId) item.route = `${item.route}/${userId}`;
+        // ✅ Do NOT mutate item.route
+        let route = item.route;
+        if (route === "/profile" && userId) {
+          route = `${route}/${userId}`;
         }
 
-        const LinkComponent = (
+        const link = (
           <Link
-            href={item.route}
             key={item.label}
+            href={route}
             className={cn(
+              "flex items-center gap-4 rounded-lg p-3 transition",
               isActive
-                ? "primary-gradient rounded-lg text-light-900"
-                : "text-dark300_light900",
-              "flex items-center justify-start gap-4 bg-transparent p-3"
+                ? "primary-gradient text-light-900"
+                : "text-dark300_light900 hover:bg-light-800 dark:hover:bg-dark-300"
             )}
           >
             <Image
@@ -48,27 +46,22 @@ const NavLinks = ({
               height={20}
               className={cn({ "invert-colors": !isActive })}
             />
-            <p
-              className={cn(
-                isActive ? "base-bold" : "base-medium",
-                !isMobileNav && "max-lg:hidden"
-              )}
-            >
+
+            <span className={cn(isActive ? "base-bold" : "base-medium", !isMobileNav && "max-lg:hidden")}>
               {item.label}
-            </p>
+            </span>
           </Link>
         );
 
         return isMobileNav ? (
-          // Wrap with SheetClose for mobile navigation to close the sheet on link click
-          <SheetClose asChild key={item.route}>
-            {LinkComponent}
+          <SheetClose asChild key={route}>
+            {link}
           </SheetClose>
         ) : (
-          <React.Fragment key={item.route}>{LinkComponent}</React.Fragment>
+          <React.Fragment key={route}>{link}</React.Fragment>
         );
       })}
-    </>
+    </nav>
   );
 };
 

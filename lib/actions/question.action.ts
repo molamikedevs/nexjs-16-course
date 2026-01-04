@@ -14,6 +14,7 @@ import {
 import { ActionResponse, ErrorResponse, PaginatedSearchParams, QuestionParams } from "@/types/global";
 import action from "../handlers/actions";
 import handleError from "../handlers/error";
+import dbConnect from "../mongoose";
 
 export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<QuestionParams>> {
   // 1. Validate and authorize the request
@@ -255,7 +256,6 @@ export async function getQuestions(
   }
 }
 
-
 export async function incrementViews(params: IncrementViewsParams): Promise<ActionResponse<{ views: number }>> {
   const validationResult = await action({
     params,
@@ -275,6 +275,16 @@ export async function incrementViews(params: IncrementViewsParams): Promise<Acti
       throw new Error("Question not found");
     }
     return { success: true, data: { views: question.views } };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function getHotQuestions(): Promise<ActionResponse<QuestionParams[]>> {
+  try {
+    await dbConnect();
+    const questions = await Question.find().sort({ views: -1, upVotes: -1 }).limit(5);
+    return { success: true, data: JSON.parse(JSON.stringify(questions)) };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
