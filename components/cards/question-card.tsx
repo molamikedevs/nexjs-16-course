@@ -13,6 +13,8 @@ interface Props {
 export default function QuestionCard({
   question: { _id, title, tags, author, upVotes, answers, views, createdAt },
 }: Props) {
+
+  const firstName = author.name?.split(" ")[0] || "User";
   return (
     <div className="card-wrapper rounded-[10px] p-9 sm:px-11">
       <div className="flex flex-col-reverse items-center justify-between gap-5 sm:flex-row">
@@ -36,8 +38,8 @@ export default function QuestionCard({
       <div className="flex-between mt-6 w-full flex-wrap gap-3">
         <Metric
           imgUrl={author.image}
-          alt={author.name}
-          value={author.name}
+          alt={firstName}
+          value={firstName}
           title={`• asked ${getTimeStamp(createdAt)}`}
           href={siteConfig.ROUTES.PROFILE(author._id)}
           textStyles="body-medium text-dark400_light700"

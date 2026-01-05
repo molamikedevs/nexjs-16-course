@@ -32,6 +32,7 @@ interface AnswerParams {
   createdAt: Date;
   upVotes: number;
   downVotes: number;
+  question: string;
 }
 
 // Standardized response type for API actions
@@ -130,3 +131,4 @@ interface BadgeCounts {
   silver: number;
   bronze: number;
 }
+
