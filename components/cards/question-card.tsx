@@ -5,15 +5,17 @@ import { siteConfig } from "@/config/site";
 import { QuestionParams, TagParams } from "@/types/global";
 import TagCard from "./tag-card";
 import Metric from "../common/metric";
+import EditDeleteAction from "../user/edit-delete-action";
 
 interface Props {
   question: QuestionParams;
+  showActionBtns?: boolean;
 }
 
 export default function QuestionCard({
   question: { _id, title, tags, author, upVotes, answers, views, createdAt },
+  showActionBtns = false,
 }: Props) {
-
   const firstName = author.name?.split(" ")[0] || "User";
   return (
     <div className="card-wrapper rounded-[10px] p-9 sm:px-11">
@@ -27,6 +29,7 @@ export default function QuestionCard({
             <h3 className="sm:h3-semibold base-semibold text-dark200_light900 line-clamp-1 flex-1">{title}</h3>
           </Link>
         </div>
+        {showActionBtns && <EditDeleteAction type="question" itemId={_id} />}
       </div>
 
       <div className="mt-3.5 flex w-full flex-wrap gap-2">

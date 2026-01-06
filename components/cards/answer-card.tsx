@@ -8,10 +8,12 @@ import { siteConfig } from "@/config/site";
 import UserAvatar from "../common/user-avatar";
 import Preview from "../editor/preview";
 import Votes from "../votes/votes";
+import EditDeleteAction from "../user/edit-delete-action";
 
 interface AnswerCardProps extends AnswerParams {
   showReadMore?: boolean;
   containerClassNames?: string;
+  showActionBtns?: boolean;
 }
 
 export default function AnswerCard({
@@ -24,6 +26,7 @@ export default function AnswerCard({
   downVotes,
   question,
   upVotes,
+  showActionBtns = false,
 }: AnswerCardProps) {
   const hasVotedPromise = hasVoted({
     targetType: "answer",
@@ -35,6 +38,12 @@ export default function AnswerCard({
   return (
     <article className={cn("light-border relative border-b py-10", containerClassNames)}>
       <span id={`answer-${_id}`} className="hash-span" />
+
+      {showActionBtns && (
+        <div className="absolute top-5 right-5">
+          <EditDeleteAction type="answer" itemId={_id} />
+        </div>
+      )}
 
       <div className="mb-5 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
         <div className="flex flex-1 items-start gap-1 sm:items-center">
