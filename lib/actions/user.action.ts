@@ -6,7 +6,7 @@ import { ActionResponse, AnswerParams, ErrorResponse, QuestionParams, TagParams,
 import { GetUserSchema, GetUserTagsSchema, PaginatedSearchParamsSchema } from "../validation";
 import handleError from "../handlers/error";
 import action from "../handlers/actions";
-import { count } from "console";
+
 
 export async function getUsers(
   params: PaginatedSearchParams
@@ -190,3 +190,23 @@ export async function getUserTags(
   }
 }
 
+export async function getEditUserQuestion(
+  params: GetUserQuestionsParams
+): Promise<ActionResponse<{ question: QuestionParams[] }>> {
+  const validationResult = action({
+    params,
+    schema: GetUserSchema,
+    authorize: true,
+  });
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  const { userId } = params!;
+  try {
+    const questions = await Question.find({ author: userId }).populate("author", "name image").populate("tags", "name");
+    return { success: true, data: { question: JSON.parse(JSON.stringify(questions)) } };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}

@@ -40,7 +40,7 @@ export default function AnswerCard({
       <span id={`answer-${_id}`} className="hash-span" />
 
       {showActionBtns && (
-        <div className="absolute top-5 right-5">
+        <div className="absolute top-3 right-5">
           <EditDeleteAction type="answer" itemId={_id} />
         </div>
       )}

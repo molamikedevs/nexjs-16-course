@@ -91,3 +91,11 @@ interface GetUserAnswersParams extends Omit<PaginatedSearchParams, "filter" | "s
 interface GetUserTagsParams {
   userId: string;
 }
+
+interface GetEditUserQuestionParams {
+  questionId: string;
+}
+
+interface DeleteQuestionParams {
+  questionId: string;
+}
