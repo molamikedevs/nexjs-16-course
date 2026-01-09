@@ -3,8 +3,8 @@
 import mongoose from "mongoose";
 import { revalidatePath } from "next/cache";
 import { ActionResponse, AnswerParams, ErrorResponse } from "@/types/global";
-import { AnswerServerSchema, GetAnswersSchema } from "../validation";
-import { Question } from "@/database";
+import { AnswerServerSchema, DeleteAnswerSchema, GetAnswersSchema } from "../validation";
+import { Question, Vote } from "@/database";
 import { siteConfig } from "@/config/site";
 import Answer, { IAnswerDoc } from "@/database/answer.model";
 import action from "../handlers/actions";
@@ -118,6 +118,42 @@ export async function getAnswers(
 
     // 7. Return success response with answers and total count
     return { success: true, data: { answers: JSON.parse(JSON.stringify(answers)), totalAnswers, isNext } };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function deleteAnswer(params: DeleteAnswerParams): Promise<ActionResponse> {
+  // 1. Validate and authorize
+  const validationResult = await action({
+    params,
+    schema: DeleteAnswerSchema,
+    authorize: true,
+  });
+
+  // 2. Handle validation errors
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  // 3. Extract validated data and get user ID
+  const { answerId } = validationResult.params!;
+  const { user } = validationResult.session!;
+
+  try {
+    const answer = await Answer.findById(answerId);
+    if (!answer) throw new Error("Answer not found");
+    if (answer.author.toString() !== user?.id) throw new Error("Your are not authorized to delete this answer");
+
+    // 4. Reduce the answer count on the question
+    await Question.findByIdAndUpdate(answer.question, { $inc: { answers: -1 } }, { new: true });
+    // 5. Delete votes associated with the answer
+    await Vote.deleteMany({ targetId: answerId, targetType: "answer" });
+    // 6. Delete the answer
+    await Answer.findByIdAndDelete(answerId);
+
+    revalidatePath(`/profile/${user?.id}`);
+    return { success: true };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

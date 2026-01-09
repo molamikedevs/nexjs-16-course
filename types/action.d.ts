@@ -92,10 +92,10 @@ interface GetUserTagsParams {
   userId: string;
 }
 
-interface GetEditUserQuestionParams {
+interface DeleteQuestionParams {
   questionId: string;
 }
 
-interface DeleteQuestionParams {
-  questionId: string;
+interface DeleteAnswerParams {
+  answerId: string;
 }

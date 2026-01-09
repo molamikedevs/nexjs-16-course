@@ -190,23 +190,4 @@ export async function getUserTags(
   }
 }
 
-export async function getEditUserQuestion(
-  params: GetUserQuestionsParams
-): Promise<ActionResponse<{ question: QuestionParams[] }>> {
-  const validationResult = action({
-    params,
-    schema: GetUserSchema,
-    authorize: true,
-  });
-  if (validationResult instanceof Error) {
-    return handleError(validationResult) as ErrorResponse;
-  }
 
-  const { userId } = params!;
-  try {
-    const questions = await Question.find({ author: userId }).populate("author", "name image").populate("tags", "name");
-    return { success: true, data: { question: JSON.parse(JSON.stringify(questions)) } };
-  } catch (error) {
-    return handleError(error) as ErrorResponse;
-  }
-}

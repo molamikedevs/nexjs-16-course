@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { getEditUserQuestion } from "@/lib/actions/user.action";
+
 import { deleteQuestion } from "@/lib/actions/question.action";
+import { deleteAnswer } from "@/lib/actions/answer.action";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,18 +28,9 @@ export default function EditDeleteAction({ type, itemId }: Props) {
   const router = useRouter();
 
   const handleEdit = async () => {
-    const result = await getEditUserQuestion({ userId: itemId });
-    if (result.success) {
-      toast.success("Question fetched for edit", {
-        description: "You can now edit your question.",
-      });
-      router.push(`/questions/${itemId}/edit`);
-    } else {
-      toast.error("Failed to fetch question for edit", {
-        description: "Please try again later.",
-      });
-    }
-  };
+    //Redirect to edit page
+    router.push(`/questions/${itemId}/edit`);
+  };;
 
   const handleDelete = async () => {
     if (type === "question") {
@@ -47,7 +39,7 @@ export default function EditDeleteAction({ type, itemId }: Props) {
         description: "Your question has been removed.",
       });
     } else if (type === "answer") {
-      // Implement answer delete functionality here
+      await deleteAnswer({ answerId: itemId });
       toast.success("Answer deleted successfully", {
         description: "Your answer has been removed.",
       });

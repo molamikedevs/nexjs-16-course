@@ -293,6 +293,7 @@ export async function getHotQuestions(): Promise<ActionResponse<QuestionParams[]
   }
 }
 
+
 export async function deleteQuestion(params: DeleteQuestionParams): Promise<ActionResponse> {
   const validationResult = await action({
     params,
