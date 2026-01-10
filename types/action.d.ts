@@ -1,3 +1,6 @@
+import mongoose from "mongoose";
+import { IInteractionDoc } from "@/database/interaction.model";
+
 interface SignInWithOAuthParams {
   provider: "github" | "google";
   providerAccountId: string;
@@ -57,7 +60,7 @@ interface GetAnswersParams extends PaginatedSearchParams {
 
 interface CreateVoteParams {
   targetId: string;
-  voteType: "upvote" | "downvote";
+  voteType: "upVotes" | "downVotes";
   targetType: "question" | "answer";
 }
 
@@ -98,4 +101,18 @@ interface DeleteQuestionParams {
 
 interface DeleteAnswerParams {
   answerId: string;
+}
+
+interface CreateInteractionParams {
+  action: "view" | "upVotes" | "downVotes" | "bookmark" | "post" | "edit" | "delete" | "search";
+  actionTarget: "question" | "answer";
+  actionId: string;
+  authorId: string;
+}
+
+interface UpdateReputationParams {
+  interaction: IInteractionDoc;
+  session: mongoose.ClientSession;
+  performerId: string;
+  authorId: string;
 }

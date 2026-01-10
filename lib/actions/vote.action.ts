@@ -1,13 +1,16 @@
 "use server";
 
+import { after } from "next/server";
+import { revalidatePath } from "next/cache";
 import mongoose, { ClientSession } from "mongoose";
+import { siteConfig } from "@/config/site";
+import { CreateVoteParams, HasVotedParams, HasVotedResponse, UpdateVoteCountParams } from "@/types/action";
+import { createInteraction } from "./interaction.action";
 import { ActionResponse, ErrorResponse } from "@/types/global";
 import { CreateVoteSchema, HasVotedSchema, UpdateVoteCountSchema } from "../validation";
 import { Answer, Question, Vote } from "@/database";
 import action from "../handlers/actions";
 import handleError from "../handlers/error";
-import { revalidatePath } from "next/cache";
-import { siteConfig } from "@/config/site";
 
 export async function updateVoteCount(params: UpdateVoteCountParams, session?: ClientSession): Promise<ActionResponse> {
   // 1. Validate input parameters and authorize
@@ -22,7 +25,7 @@ export async function updateVoteCount(params: UpdateVoteCountParams, session?: C
   // 2. Extract validated data and determine model and vote field
   const { targetId, voteType, targetType, change } = validationResult.params!;
   const model = targetType === "question" ? Question : Answer;
-  const voteField = voteType === "upvote" ? "upVotes" : "downVotes";
+  const voteField = voteType === "upVotes" ? "upVotes" : "downVotes";
 
   try {
     // 3. Update the vote count dynamically and return the result
@@ -63,6 +66,11 @@ export async function createVote(params: CreateVoteParams): Promise<ActionRespon
   session.startTransaction();
 
   try {
+    const Model = targetType === "question" ? Question : Answer;
+    const contentDoc = await Model.findById(targetId).session(session);
+    if (!contentDoc) throw new Error(`${targetType} not found`);
+
+    const contentAuthorId = contentDoc.author.toString();
     // 4. Check for existing vote by the user on the target if there is
     // update or remove it accordingly by calling the voteCount action, else create a new vote
     const existingVote = await Vote.findOne({
@@ -123,6 +131,15 @@ export async function createVote(params: CreateVoteParams): Promise<ActionRespon
 
     // 5. Commit the transaction and revalidate the path
     await session.commitTransaction();
+
+    after(async () => {
+      await createInteraction({
+        action: voteType,
+        actionId: contentDoc._id.toString(),
+        actionTarget: targetType,
+        authorId: userId as string,
+      });
+    });
     revalidatePath(siteConfig.ROUTES.QUESTION(targetId));
 
     // 6. Return success response

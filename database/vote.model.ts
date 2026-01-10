@@ -4,7 +4,7 @@ export interface IVote {
   author: Types.ObjectId;
   actionId: Types.ObjectId;
   actionType: "question" | "answer";
-  voteType: "upvote" | "downvote";
+  voteType: "upVotes" | "downVotes";
 }
 
 export interface IVoteDoc extends IVote, Document {}
@@ -13,7 +13,7 @@ const VoteSchema = new Schema<IVote>(
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
     actionId: { type: Schema.Types.ObjectId, required: true },
     actionType: { type: String, enum: ["question", "answer"], required: true },
-    voteType: { type: String, enum: ["upvote", "downvote"], required: true },
+    voteType: { type: String, enum: ["upVotes", "downVotes"], required: true },
   },
   { timestamps: true }
 );

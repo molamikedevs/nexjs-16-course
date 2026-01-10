@@ -64,7 +64,7 @@ export default async function Profile({ params, searchParams }: RouteParams) {
 
   // Get user details
   const {
-    user: { _id, name, image, bio, location, portfolioUrl, username, createdAt },
+    user: { _id, name, image, bio, location, portfolioUrl, username, createdAt, reputation },
     totalQuestions,
     totalAnswers,
   } = data!;
@@ -109,7 +109,12 @@ export default async function Profile({ params, searchParams }: RouteParams) {
       </section>
 
       {/* User Stats */}
-      <Stats totalQuestions={totalQuestions} totalAnswers={totalAnswers} badges={{ gold: 0, silver: 0, bronze: 0 }} />
+      <Stats
+        totalQuestions={totalQuestions}
+        totalAnswers={totalAnswers}
+        badges={{ gold: 0, silver: 0, bronze: 0 }}
+        reputationPoints={reputation || 0}
+      />
 
       {/* User Questions and Answers */}
       <section className="mt-10 flex gap-10">

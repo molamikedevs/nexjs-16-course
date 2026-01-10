@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import mongoose, { FilterQuery } from "mongoose";
 import Question, { IQuestionDoc } from "@/database/question.model";
 import Tag, { ITagDoc } from "@/database/tag.model";
@@ -12,12 +13,20 @@ import {
   IncrementViewsSchema,
   PaginatedSearchParamsSchema,
 } from "../validation";
+import {
+  CreateQuestionParams,
+  DeleteQuestionParams,
+  EditQuestionParams,
+  GetQuestionsParams,
+  IncrementViewsParams,
+} from "@/types/action";
 import { ActionResponse, ErrorResponse, PaginatedSearchParams, QuestionParams } from "@/types/global";
 import action from "../handlers/actions";
 import handleError from "../handlers/error";
 import dbConnect from "../mongoose";
 import { after } from "next/server";
-import { revalidatePath } from "next/cache";
+import { createInteraction } from "./interaction.action";
+
 
 export async function createQuestion(params: CreateQuestionParams): Promise<ActionResponse<QuestionParams>> {
   // 1. Validate and authorize the request
@@ -65,10 +74,20 @@ export async function createQuestion(params: CreateQuestionParams): Promise<Acti
     }
     await TagQuestion.insertMany(tagQuestionDocument, { session });
     await Question.findByIdAndUpdate(question._id, { $push: { tags: { $each: tagIds } } }, { session });
-    // 5. Commit the transaction
+    // 5. log the interaction
+    after(async () => {
+      await createInteraction({
+        action: "post",
+        actionId: question._id.toString(),
+        actionTarget: "question",
+        authorId: userId as string,
+      });
+    });
+
+    // 6. Commit the transaction
     await session.commitTransaction();
 
-    // 6. Return success response and serialize the question object
+    // 7. Return success response and serialize the question object
     return { success: true, data: JSON.parse(JSON.stringify(question)) };
   } catch (error) {
     await session.abortTransaction();

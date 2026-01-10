@@ -9,8 +9,8 @@ export interface IInteraction {
 
 export const InteractionActionEnums = [
   "view",
-  "upvote",
-  "downvote",
+  "upVotes",
+  "downVotes",
   "bookmark",
   "post",
   "edit",

@@ -8,6 +8,7 @@ export interface IUser {
   image?: string;
   location?: string;
   portfolioUrl?: string;
+  reputation?: number;
 }
 
 export interface IUserDoc extends IUser, Document {}
@@ -21,6 +22,7 @@ const UserSchema = new Schema(
     image: { type: String },
     location: { type: String },
     portfolioUrl: { type: String },
+    reputation: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

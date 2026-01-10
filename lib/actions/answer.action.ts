@@ -9,6 +9,9 @@ import { siteConfig } from "@/config/site";
 import Answer, { IAnswerDoc } from "@/database/answer.model";
 import action from "../handlers/actions";
 import handleError from "../handlers/error";
+import { CreateAnswerParams, DeleteAnswerParams, GetAnswersParams } from "@/types/action";
+import { createInteraction } from "./interaction.action";
+import { after } from "next/server";
 
 export async function createAnswer(params: CreateAnswerParams): Promise<ActionResponse<IAnswerDoc>> {
   // 1. Validate and authorize
@@ -53,6 +56,15 @@ export async function createAnswer(params: CreateAnswerParams): Promise<ActionRe
     // Save changes and commit the transaction
     question.answers += 1;
     await question.save({ session });
+
+    after(async () => {
+      await createInteraction({
+        action: "post",
+        actionId: newAnswer._id.toString(),
+        actionTarget: "answer",
+        authorId: userId as string,
+      });
+    });
     await session.commitTransaction();
 
     // 8. Revalidate the question page to reflect the new answer
