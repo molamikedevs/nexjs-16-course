@@ -116,7 +116,7 @@ interface UserParams {
   bio?: string;
   location?: string;
   portfolioUrl?: string;
-  reputation: number;
+  reputation?: number;
   createdAt: Date;
 }
 
@@ -126,9 +126,9 @@ interface CollectionParams {
   question: QuestionParams;
 }
 
-interface BadgeCounts {
-  gold: number;
-  silver: number;
-  bronze: number;
+interface Badges {
+  GOLD: number;
+  SILVER: number;
+  BRONZE: number;
 }
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import dayjs from "dayjs";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
-import { getUser, getUserAnswers, getUserQuestions, getUserTags } from "@/lib/actions/user.action";
+import { getUser, getUserAnswers, getUserQuestions, getUserStats, getUserTags } from "@/lib/actions/user.action";
 import { RouteParams } from "@/types/global";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -65,9 +65,9 @@ export default async function Profile({ params, searchParams }: RouteParams) {
   // Get user details
   const {
     user: { _id, name, image, bio, location, portfolioUrl, username, createdAt, reputation },
-    totalQuestions,
-    totalAnswers,
   } = data!;
+
+  const { data: userStats } = await getUserStats({ userId: id });
 
   // Get first name
   const firstName = name.split(" ")[0];
@@ -110,9 +110,9 @@ export default async function Profile({ params, searchParams }: RouteParams) {
 
       {/* User Stats */}
       <Stats
-        totalQuestions={totalQuestions}
-        totalAnswers={totalAnswers}
-        badges={{ gold: 0, silver: 0, bronze: 0 }}
+        totalQuestions={userStats?.totalQuestions || 0}
+        totalAnswers={userStats?.totalAnswers || 0}
+        badges={userStats?.badges || { GOLD: 0, SILVER: 0, BRONZE: 0 }}
         reputationPoints={reputation || 0}
       />
 

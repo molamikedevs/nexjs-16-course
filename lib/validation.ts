@@ -68,7 +68,7 @@ export const UserSchema = z.object({
   bio: z.string().optional(),
   image: z.url("Invalid image URL").optional(),
   location: z.string().optional(),
-  portfolio: z.url("Invalid portfolio URL").optional(),
+  portfolioUrl: z.url("Invalid portfolio URL").optional(),
   reputation: z.number().optional(),
 });
 
@@ -162,8 +162,8 @@ export const CreateVoteSchema = z.object({
   targetType: z.enum(["question", "answer"], {
     message: "Invalid target type. Must be 'question' or 'answer'.",
   }),
-  voteType: z.enum(["upvote", "downvote"], {
-    message: "Invalid vote type. Must be 'upvote' or 'downvote'.",
+  voteType: z.enum(["upVotes", "downVotes"], {
+    message: "Invalid vote type. Must be 'upVotes' or 'downVotes'.",
   }),
 });
 
@@ -209,7 +209,7 @@ export const DeleteAnswerSchema = z.object({
 });
 
 export const CreateInteractionSchema = z.object({
-  action: z.enum(InteractionActionEnums),
+  action: z.enum(["view", "upVotes", "downVotes", "bookmark", "post", "edit", "delete", "search"]),
   actionTarget: z.enum(["question", "answer"]),
   actionId: z.string().min(1),
   authorId: z.string().min(1),

@@ -1,9 +1,9 @@
 import { formatNumber } from "@/lib/utils";
-import { BadgeCounts } from "@/types/global";
+import { Badges } from "@/types/global";
 import StatsCard from "../cards/starts-card";
 
 interface Props {
-  badges: BadgeCounts;
+  badges: Badges;
   totalQuestions: number;
   totalAnswers: number;
   reputationPoints: number;
@@ -28,11 +28,11 @@ export default function Stats({ totalQuestions, totalAnswers, badges, reputation
           </div>
         </div>
 
-        <StatsCard imgUrl="/icons/gold-medal.svg" value={badges.gold} title="Gold Badges" />
+        <StatsCard imgUrl="/icons/gold-medal.svg" value={badges.GOLD} title="Gold Badges" />
 
-        <StatsCard imgUrl="/icons/silver-medal.svg" value={badges.silver} title="Silver Badges" />
+        <StatsCard imgUrl="/icons/silver-medal.svg" value={badges.SILVER} title="Silver Badges" />
 
-        <StatsCard imgUrl="/icons/bronze-medal.svg" value={badges.bronze} title="Bronze Badges" />
+        <StatsCard imgUrl="/icons/bronze-medal.svg" value={badges.BRONZE} title="Bronze Badges" />
       </div>
     </div>
   );
